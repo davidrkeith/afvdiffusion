@@ -1,0 +1,46 @@
+HYBRID Introduction Date=100
+ELECTRIC Introduction Date=5
+
+"GHG Emissions Factor - ELECTRICITY"=0
+
+Sensitivity Effect Alpha=1
+Target Utilization f[PLUG]=.2
+Buffer miles per Distance to Stations parameter=20
+Clustering factor=1.5
+
+Marketing Effectiveness=7e-5
+Marketing Fraction of Revenue=0.001
+
+Initial Expereince with Recharging=1e7
+Learning Rate Recharging Rate=0
+Target Profitability f[PLUG]=3
+Initial ELECTRIC Dispensing Rate=15
+Infrastructure Fixed Costs Amortized over 20 years f[PLUG]=1500
+
+extra stations[PLUG]=20000
+extra stations START[PLUG]=5
+extra stations DURATION[PLUG]=5
+
+stations incentives[PLUG]=0
+stations incentives START[PLUG]=5
+stations incentives DURATION[PLUG]=5
+
+marketing spending[CONVENTIONAL]=0
+marketing spending START[CONVENTIONAL]=0
+marketing spending DURATION[CONVENTIONAL]=0
+marketing spending[HYBRID]=0
+marketing spending START[HYBRID]=0
+marketing spending DURATION[HYBRID]=0
+marketing spending[ELECTRIC]=200
+marketing spending START[ELECTRIC]=5
+marketing spending DURATION[ELECTRIC]=5
+
+Manufacturer vehicle subsidy[CONVENTIONAL]=0
+Manufacturer vehicle subsidy START[CONVENTIONAL]=0
+Manufacturer vehicle subsidy DURATION[CONVENTIONAL]=0
+Manufacturer vehicle subsidy[HYBRID]=0
+Manufacturer vehicle subsidy START[HYBRID]=0
+Manufacturer vehicle subsidy DURATION[HYBRID]=0
+Manufacturer vehicle subsidy[ELECTRIC]=10000
+Manufacturer vehicle subsidy START[ELECTRIC]=5
+Manufacturer vehicle subsidy DURATION[ELECTRIC]=5

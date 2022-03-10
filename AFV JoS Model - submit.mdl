@@ -1,0 +1,4393 @@
+{UTF-8}
+Vehicle Sales Percent i[Technology]=
+	Vehicle Sales Share i[Technology]*100
+	~	dmnl
+	~		~	:SUPPLEMENTARY 
+	|
+
+Average FE of New Vehicles=
+	SUM(FE of New Vehicles by Platform j[Technology!]*Vehicle Sales Share i[Technology!]\
+		)
+	~	miles/GGE
+	~		~	:SUPPLEMENTARY 
+	|
+
+Installed Base Percent i[Technology]=
+	Installed Base Share i[Technology]*100
+	~	dmnl
+	~		~	:SUPPLEMENTARY 
+	|
+
+Installed Base Share i[Technology]=
+	Installed Base i[Technology]/SUM(Installed Base i[Technology!])
+	~	dmnl
+	~		|
+
+Average Fleet FE=
+	SUM(Installed Base Share i[Technology!]*Average FE by Platform i[Technology!])
+	~	miles/GGE
+	~		~	:SUPPLEMENTARY 
+	|
+
+Unit BATTERY Cost i[Technology]=
+	IF THEN ELSE
+	  (SW Learning=0, 
+	    Initial BATTERY Cost i[Technology], 
+	    Initial BATTERY Cost i[Technology]*Effect of Experience on Unit BATTERY Cost i[Technology\
+		]    
+	  )
+	~	$/GGE
+	~	Cost of the BATTERY per GGE, by platform
+	|
+
+ELECTRIC Architecture Cost i[Technology]=
+	IF THEN ELSE(SW Learning=0, Initial ELECTRIC Architecture Cost i[Technology], Initial ELECTRIC Architecture Cost i\
+		[
+	Technology]*
+	
+	Effect of Experience on ELECTRIC Architecture Cost i[Technology])
+	~	$/vehicles
+	~	Cost of the ELECTRIC vehicle architecture, by platform
+	|
+
+IC Engine Cost i[Technology]=
+	IF THEN ELSE(SW Learning=0, Initial IC Engine Cost i[Technology], Initial IC Engine Cost i\
+		[Technology]*
+	
+	Effect of Experience on IC Engine Cost i[Technology])
+	~	$/vehicles
+	~	Cost of the internal cobustion engine in a vehicle, by platform
+	|
+
+Base Vehicle Cost i[Technology]=
+	IF THEN ELSE(SW Learning=0, Initial Base Vehicle Cost i[Technology], Initial Base Vehicle Cost i\
+		[Technology]*
+	
+	Effect of Experience on Base Vehicle Cost i[Technology])
+	~	$/vehicles
+	~	Base cost of a vehicle, by platform
+	|
+
+Total Installed Base=
+	SUM(Installed Base i[Technology!])
+	~	vehicle
+	~		|
+
+Average Familiarity i[TechnologyTo]=
+	MIN(1, SUM(Average Familiarity ij[Technology!,TechnologyTo]*Installed Base i[Technology\
+		!]/Total Installed Base))
+	~	dmnl
+	~		~	:SUPPLEMENTARY 
+	|
+
+Vehicle Sales Share i[Technology]=
+	Vehicle Sales i[Technology]/SUM(Vehicle Sales i[Technology!])
+	~	dmnl
+	~		|
+
+Clustering factor=
+	1
+	~	dmnl
+	~		|
+
+Density of Stations f[Infrastructure]=
+	ZIDZ(Available Infrastructure f[Infrastructure],US Area Square Miles*Clustering factor\
+		)
+	~	stations/(miles*miles)
+	~	Average density of refueling stations, by infrastructure
+	|
+
+Normalised Station profit Margin f[Infrastructure]=
+	ZIDZ(Station Profit f[Infrastructure],Infrastructure Fixed Costs Amortized over 20 years f\
+		[Infrastructure])
+	~	dmnl
+	~	Margin of a refueling station
+	|
+
+Combined effect f[Infrastructure]=
+	TF Effect of Profit on Desired Infrastructure(Ratio of Recent Profit Margin to Target Profitability f\
+		[Infrastructure])*Sensitivity Effect Alpha+Ratio of Projected Utilization and Target Utilization f\
+		[Infrastructure]*(1-Sensitivity Effect Alpha)
+	~	dmnl
+	~		|
+
+Infrastructure Utilization i[CONVENTIONAL]=
+	Recent Utilization f[GASPUMP] ~~|
+Infrastructure Utilization i[HYBRID]=
+	Recent Utilization f[GASPUMP] ~~|
+Infrastructure Utilization i[ELECTRIC]=
+	Recent Utilization f[PLUG]
+	~	dmnl
+	~	Perceived utilization of refueling stations for drivers of platform i
+	|
+
+Relative Buffer i[Technology]=
+	Fuel Buffer i[Technology]/a i[Technology]
+	~	dmnl
+	~		~	:SUPPLEMENTARY 
+	|
+
+BATTERY Capacity=
+	ELECTRIC Range*ELECTRIC Energy Efficiency
+	~	GGE/vehicle
+	~		|
+
+TF Effect of Profit on Desired Infrastructure(
+	[(0,0)-(2,2)],(0,0),(1,1),(2,2))
+	~	dmnl
+	~		|
+
+Direct Exposure to Platform j[TechnologyTo]=
+	Exposure from Drivers j[TechnologyTo]
+	~	dmnl/year
+	~	Effective strength of a contact with both drivers of the platform j and \
+		and non-drivers of the platform i to promote the platform j. Measures the \
+		effective rate of reducing the gap to full familiarity of platform i with \
+		platform j per year.
+	|
+
+Total Social Exposure to Platform ij[Technology,TechnologyTo]=
+	Total Marketing Exposure j[TechnologyTo]+Cross Platform Exposure ij[Technology,TechnologyTo\
+		]+Direct Exposure to Platform j[TechnologyTo]
+	~	dmnl/year
+	~	Total effective rate of reducing the gap to full familiarity of platform i \
+		with platform j per year.
+	|
+
+Cross Platform Exposure ij[Technology,TechnologyTo]=
+	IF THEN ELSE(Time<Platform Introduction Date j[TechnologyTo], 0, IF THEN ELSE(SW Familiarity Spillovers\
+		=0 , 0, SUM(Direct Exposure to Platform j[TechnologyTo]*Familiarity Spillover Matrix jk
+	[TechnologyTo,TechnologySpill!])))
+	~	dmnl/year
+	~	Total strength of a contact with both drivers of the platform j and and \
+		non-drivers of the platform i to promote the platform j including platform \
+		i spillover. Measures the effective rate of reducing the gap to full \
+		familiarity of platform i with platform j per year.
+	|
+
+marketing spending START[CONVENTIONAL]=
+	0 ~~|
+marketing spending START[HYBRID]=
+	0 ~~|
+marketing spending START[ELECTRIC]=
+	0
+	~	year
+	~		|
+
+extra stations[GASPUMP]=
+	0 ~~|
+extra stations[PLUG]=
+	0
+	~	stations/year
+	~		|
+
+extra stations DURATION[GASPUMP]=
+	0 ~~|
+extra stations DURATION[PLUG]=
+	0
+	~	year
+	~		|
+
+extra stations START[GASPUMP]=
+	0 ~~|
+extra stations START[PLUG]=
+	0
+	~	year
+	~		|
+
+stations incentives DURATION[GASPUMP]=
+	0 ~~|
+stations incentives DURATION[PLUG]=
+	0
+	~	year
+	~		|
+
+Manufacturer Subsidy i[Technology]= GAME (
+	Manufacturer Vehicle Subsidy[Technology]*PULSE(Manufacturer Vehicle Subsidy START[Technology\
+		], Manufacturer Vehicle Subsidy DURATION[Technology]))
+	~	$/vehicles
+	~	Manufacturer subsidy per vehicle, by platform.
+	|
+
+marketing spending[CONVENTIONAL]=
+	0 ~~|
+marketing spending[HYBRID]=
+	0 ~~|
+marketing spending[ELECTRIC]=
+	0
+	~	million/year
+	~		|
+
+Stations per Year f[Infrastructure]= GAME (
+	extra stations[Infrastructure]*PULSE(extra stations START[Infrastructure],extra stations DURATION\
+		[Infrastructure]))
+	~	stations/year
+	~	Governmental program for additional number of stations being introduced \
+		(bypassing economic considerations of infrastructure evolution)
+	|
+
+Manufacturer Vehicle Subsidy[CONVENTIONAL]=
+	0 ~~|
+Manufacturer Vehicle Subsidy[HYBRID]=
+	0 ~~|
+Manufacturer Vehicle Subsidy[ELECTRIC]=
+	0
+	~	$/vehicles
+	~		|
+
+Spending by Platform j[Technology]= GAME (
+	marketing spending[Technology]*PULSE(marketing spending START[Technology], marketing spending DURATION\
+		[Technology]))
+	~	million/year
+	~	Additoinal marketing spending to promote the platform j
+	|
+
+marketing spending DURATION[CONVENTIONAL]=
+	0 ~~|
+marketing spending DURATION[HYBRID]=
+	0 ~~|
+marketing spending DURATION[ELECTRIC]=
+	0
+	~	year
+	~		|
+
+Manufacturer Vehicle Subsidy START[CONVENTIONAL]=
+	0 ~~|
+Manufacturer Vehicle Subsidy START[HYBRID]=
+	0 ~~|
+Manufacturer Vehicle Subsidy START[ELECTRIC]=
+	0
+	~	year
+	~		|
+
+stations incentives START[GASPUMP]=
+	0 ~~|
+stations incentives START[PLUG]=
+	0
+	~	year
+	~		|
+
+Infrastructure Incentive f[Infrastructure]=
+	stations incentives[Infrastructure]*PULSE(stations incentives START[Infrastructure],\
+		 stations incentives DURATION[Infrastructure])
+	~	$/(year*stations)
+	~	Government subsidy per station per year to support stations that sell fuel \
+		r
+	|
+
+stations incentives[GASPUMP]=
+	0 ~~|
+stations incentives[PLUG]=
+	0
+	~	$/(year*stations)
+	~		|
+
+Manufacturer Vehicle Subsidy DURATION[CONVENTIONAL]=
+	0 ~~|
+Manufacturer Vehicle Subsidy DURATION[HYBRID]=
+	0 ~~|
+Manufacturer Vehicle Subsidy DURATION[ELECTRIC]=
+	0
+	~	year
+	~		|
+
+Initial Infrastructure Availability f[GASPUMP]= INITIAL(
+	120000) ~~|
+Initial Infrastructure Availability f[PLUG]= INITIAL(
+	0)
+	~	stations
+	~	Initial number of refueling stations available
+	|
+
+Initial Infrastructure in Construction f[Infrastructure]= INITIAL(
+	(Initial Infrastructure Availability f[Infrastructure]*(-Infrastructure Life f[Infrastructure\
+		] + Combined effect f[Infrastructure]*Infrastructure Life f[Infrastructure] + Time to Install Infrastructure f\
+		[Infrastructure]))/Infrastructure Life f[Infrastructure])
+	~	stations
+	~	Initial stock of refueling stations being built
+	|
+
+Target Profitability f[GASPUMP]= INITIAL(
+	Recent Station Profit Margin f[GASPUMP]) ~~|
+Target Profitability f[PLUG]=
+	0.07
+	~	dmnl
+	~	Target profitability of refueling stations. Assume it is equal to current \
+		profitability of conventional infrastructure initialized in equilibrium
+	|
+
+SW Improving FE=
+	0
+	~	dmnl [0,1,1]
+	~		|
+
+Target Utilization f[GASPUMP]= INITIAL(
+	Recent Utilization f[GASPUMP]) ~~|
+Target Utilization f[PLUG]=
+	0.5
+	~	dmnl
+	~	Target utilization of a refueling station. Assume it is equal to current \
+		utilization of conventional infrastructure initialized in equilibrium
+	|
+
+Fuel Efficiency i[Technology]=
+	Reference Platform Fuel Efficiency i[Technology]*IF THEN ELSE(SW Improving FE=1, Relative Efficiency i\
+		[Technology], 1)
+	~	GGE/miles
+	~	Effective inverted fuel efficiency of platform i
+	|
+
+Distance to Station to Buffer i[CONVENTIONAL]=
+	SQRT(Average Distance to Station f[GASPUMP]/Unit conversion for distance to station to buffer\
+		)*Buffer miles per Distance to Stations parameter ~~|
+Distance to Station to Buffer i[HYBRID]=
+	SQRT(Average Distance to Station f[GASPUMP]/Unit conversion for distance to station to buffer\
+		)*Buffer miles per Distance to Stations parameter ~~|
+Distance to Station to Buffer i[ELECTRIC]=
+	SQRT(Average Distance to Station f[PLUG]/Unit conversion for distance to station to buffer\
+		)*Buffer miles per Distance to Stations parameter
+	~	miles/vehicles
+	~	A convex function that describes relation between average distance to \
+		refueling station and buffer (amount of miles left on a remaining fuel \
+		when drivers begin search for a refueling station) drivers choose. Square \
+		root provides a good fit to the observed behavior.
+	|
+
+Fuel Dispensing Rate r[GASOLINEFUEL]=
+	600 ~~|
+Fuel Dispensing Rate r[ELECTRICITY]=
+	Initial ELECTRIC Dispensing Rate*Effect of Experience on Recharging Rate
+	~	GGE/hour
+	~	Rate of filing the storage tank of a vehicle from the pump, by fuel
+	|
+
+Initial ELECTRIC Dispensing Rate=
+	1.5
+	~	GGE/hour
+	~		|
+
+"Platform From/To ij"[Technology,TechnologyTo]=
+	Vehicle Discards i[Technology]*Share ij[Technology,TechnologyTo]
+	~	vehicles/year
+	~	Number of vehicles of platform i switching to platform j
+	|
+
+Market Growth Rate=
+	0
+	~	dmnl
+	~		|
+
+Platform Demand j[TechnologyTo]=
+	SUM((Vehicle Discards i[Technology!]*(1+Market Growth Rate))*Share ij[Technology!,TechnologyTo\
+		])
+	~	vehicles/year
+	~	Total demand of platform j
+	|
+
+Vehicle Sales i[Technology]=
+	Platform Demand j[Technology]
+	~	vehicles/year
+	~	Sales of new vehicles, by platform
+	|
+
+Ratio of Projected Utilization and Target Utilization f[Infrastructure]=
+	MAX(0, ZIDZ(Recent Utilization f[Infrastructure], Target Utilization f[Infrastructure\
+		] ))
+	~	dmnl
+	~	Stations future utilization relative to target utilization
+	|
+
+Ratio of Recent Profit Margin to Target Profitability f[Infrastructure]=
+	ZIDZ( Recent Station Profit Margin f[Infrastructure] , Target Profitability f[Infrastructure\
+		] )
+	~	dmnl
+	~	Stations future profitability relative to target utilization
+	|
+
+Desired Infrastructure f[Infrastructure]=
+	Available Infrastructure f[Infrastructure]*Combined effect f[Infrastructure]
+	~	stations
+	~	Desired number of refueling stations
+	|
+
+Sensitivity Effect Alpha=
+	0.7
+	~	dmnl [0,1]
+	~		|
+
+Subsidy Phase In and Out time=
+	1
+	~	years
+	~		|
+
+Effect of Experience on Recharging Rate=
+	MAX(1, (Cumulative Order Fulfillment j[ELECTRIC]/Initial Expereince with Recharging)\
+		^LOG(1+Learning Rate Recharging Rate, 2))
+	~	dmnl
+	~	Effect of experience on BATTERY cost
+	|
+
+MSRP j[Technology]=
+	(1+Markup)*Vehicle Cost i[Technology] - SMOOTH(Manufacturer Subsidy i[Technology], Subsidy Phase In and Out time\
+		)
+	~	$/vehicles
+	~	Vehicle recommended price by manufacturer, by platform
+	|
+
+VMT Public per Year by Platform and by Fuel ir[Technology,Fuels]=
+	Fuel Usage Matrix ir[Technology,Fuels]*VMT SW i[Technology]*VMT per Year i[Technology\
+		]
+	~	miles/vehicles/year
+	~	Number of miles traveled per year by an average vehicle of a platform i on \
+		fuel r
+	|
+
+Learning Rate Recharging Rate=
+	0
+	~	dmnl [0,1,0.05]
+	~	Technology learning curve rate. Indicates fractional decrease in principal \
+		variable with every doubling of experience
+	|
+
+Initial Expereince with Recharging=
+	5e+07
+	~	vehicles
+	~		|
+
+Vehicle Incentives j[TechnologyTo]=
+	Incentive Value j[TechnologyTo]*Platform Introduced j[TechnologyTo]
+	~	$/vehicles
+	~	Actual government incentive for vehicles after the platform is introduced, \
+		by platform. This variable reduces the effective price customers pay for \
+		the vehicle., by platform
+	|
+
+EXP Utility j[TechnologyTo]=
+	IF THEN ELSE((Platform Introduction Date j[TechnologyTo]>Time), 0,EXP(Utility j[TechnologyTo\
+		]*Logit Choice Scaling))
+	~	dmnl
+	~	Exponent of the utility of a vehicle of the platform j
+	|
+
+Cumulative Familiarity ij[Technology,TechnologyTo]= INTEG (
+	Familiarity Discards ij[Technology,TechnologyTo]+Familiarity Increase ij[Technology,\
+		TechnologyTo]
+	
+	-Familiarity Forgetting ij[Technology,TechnologyTo]
+	
+	-Familiarity Sales ij[Technology,TechnologyTo],
+		Initial Familiarity ij[Technology,TechnologyTo])
+	~	vehicles
+	~	Cumulative familiarity measured in drivers of platform i familiar with \
+		platform j
+	|
+
+Familiarity Increase ij[Technology,TechnologyTo]=
+	MAX(0,(1-Average Familiarity ij[Technology,TechnologyTo])*Total Social Exposure to Platform ij\
+		[Technology,TechnologyTo]
+	*Installed Base i[Technology])
+	~	vehicles/year
+	~	Increase in familiarity of platform i with platform j per year.
+	|
+
+Familiarity Discards ij[Technology,TechnologyTo]=
+	SUM(Familiarity swaps[TechnologyFrom!,Technology,TechnologyTo])
+	~	vehicles/year
+	~	Increase in familiarity of platform i with platform j per year due to sales
+	|
+
+Familiarity swaps[TechnologyFrom,Technology,TechnologyTo]=
+	"Platform From/To ij"[TechnologyFrom,Technology]*IF THEN ELSE(TechnologyTo=Technology\
+		,1,Average Familiarity ij[TechnologyFrom
+	,TechnologyTo])
+	~	vehicles/year
+	~	TechnologyFrom: the previous platform
+		Technology: the platform we buy
+		TechnologyTo: the platform about which we tracing familiarity
+		
+		A consumer that switches to a technology will take familiarity of 1.
+	|
+
+Effective Price j[TechnologyTo]=
+	MSRP j[TechnologyTo]-Vehicle Incentives j[TechnologyTo]
+	~	$/vehicles
+	~	Retail price of a vehicle, by platform
+	|
+
+Platform Range jf[CONVENTIONAL,Infrastructure]=
+	IF THEN ELSE(Infrastructure=GASPUMP, "Range by Platform-Fuel ir"[CONVENTIONAL, GASOLINEFUEL\
+		], 0) ~~|
+Platform Range jf[HYBRID,Infrastructure]=
+	IF THEN ELSE(Infrastructure=GASPUMP, "Range by Platform-Fuel ir"[HYBRID, GASOLINEFUEL\
+		], 0) ~~|
+Platform Range jf[ELECTRIC,Infrastructure]=
+	IF THEN ELSE(Infrastructure=PLUG, "Range by Platform-Fuel ir"[ELECTRIC, ELECTRICITY]\
+		, 0)
+	~	miles/vehicles
+	~	Nominal range of a vehicle, by platform and by stations
+	|
+
+Vehicle Operating Cost in Cents i[Technology]=
+	Vehicle Operating Cost i[Technology]*Cents per Dollar
+	~	cents/miles
+	~		|
+
+Effective Range ir[CONVENTIONAL,Fuels]=
+	IF THEN ELSE(Fuels=GASOLINEFUEL, Effective Range if[CONVENTIONAL,GASPUMP], 0) ~~|
+Effective Range ir[HYBRID,Fuels]=
+	IF THEN ELSE(Fuels=GASOLINEFUEL, Effective Range if[HYBRID,GASPUMP], 0) ~~|
+Effective Range ir[ELECTRIC,Fuels]=
+	IF THEN ELSE(Fuels=ELECTRICITY, Effective Range if[ELECTRIC,PLUG],0)
+	~	miles/vehicles
+	~	Effective useful range of a vehicle accounting for buffer, which is \
+		reserved to find a refueling station, by platform and by fuel type
+	|
+
+Fuel Search Cost j[TechnologyTo]=
+	ZIDZ(Full Refueling Cost i[TechnologyTo]*Cents per Dollar , VMT per Year i[TechnologyTo\
+		]*VMT SW i[TechnologyTo])
+	~	cents/miles
+	~	Total cost associated with fuel search, wait and refuel, by platform
+	|
+
+Cents per Dollar=
+	100
+	~	cents/$
+	~	How many cents are in a dollar
+	|
+
+Fuel Price r[GASOLINEFUEL]=
+	Gasoline Price*Native units to GGE Gasoline ~~|
+Fuel Price r[ELECTRICITY]=
+	ELECTRICITY Price*Native units to GGE ELECTRICITY
+	~	$/GGE
+	~	Fuel price without taxes
+	|
+
+Energy Storage i[Technology]=
+	BATTERY Cost i[Technology]
+	~	$/vehicles
+	~	Cost of energy storage per vehicle, by platform
+	|
+
+Station Profit f[GASPUMP]=
+	Pumps per Station f[GASPUMP]*Pump Operating Profits r[GASOLINEFUEL]+
+	Ancillary Revenues Per Station[GASPUMP]-
+	Infrastructure Fixed Costs Amortized over 20 years f[GASPUMP] + 
+	Infrastructure Incentive f[GASPUMP] ~~|
+Station Profit f[PLUG]=
+	IF THEN ELSE(Platform Introduction Date j[ELECTRIC] > Time, 0 , 
+	Pump Operating Profits r[ELECTRICITY]*Pumps per Station f[PLUG]+
+	Ancillary Revenues Per Station[PLUG]-
+	Infrastructure Fixed Costs Amortized over 20 years f[PLUG]+
+	Infrastructure Incentive f[PLUG] )
+	~	$/(stations*year)
+	~	Yearly profit of a refueling station that sells fuel r
+	|
+
+Vehicle range j[TechnologyTo]=
+	Platform Range i[TechnologyTo]
+	~	miles/vehicles
+	~	Actual range of a vehicle without refueling, by platform
+	|
+
+Acceleration by Platform j[CONVENTIONAL]=
+	GAS Acceleration ~~|
+Acceleration by Platform j[HYBRID]=
+	HYBRID Acceleration ~~|
+Acceleration by Platform j[ELECTRIC]=
+	ELECTRIC Acceleration
+	~	seconds
+	~	Acceleration of a vehicle of platform j
+	|
+
+ELECTRIC Share i[Technology]=
+	IF THEN ELSE(Affinity ij[Technology,ELECTRIC]=0, 0 , ZIDZ(Affinity ij[Technology,ELECTRIC\
+		],Logit Denominator i
+	[Technology]) )
+	~	dmnl
+	~	Share of drivers of platform i choosing ELECTRIC platform
+	|
+
+Platform Introduction Date j[CONVENTIONAL]=
+	GAS Introduction Date ~~|
+Platform Introduction Date j[HYBRID]=
+	HYBRID Introduction Date ~~|
+Platform Introduction Date j[ELECTRIC]=
+	ELECTRIC Introduction Date
+	~	year
+	~	Year of introduction of the platform j
+	|
+
+Tank GGE j[CONVENTIONAL]=
+	GAS Tank/Native units to GGE Gasoline ~~|
+Tank GGE j[HYBRID]=
+	HYBRID Tank/Native units to GGE Gasoline ~~|
+Tank GGE j[ELECTRIC]=
+	0
+	~	GGE/vehicles
+	~		|
+
+BATTERY i[CONVENTIONAL]=
+	0 ~~|
+BATTERY i[HYBRID]=
+	HYBRID Storage ~~|
+BATTERY i[ELECTRIC]=
+	BATTERY Capacity
+	~	GGE/vehicles
+	~	Capacity of the BATTERY, by platform
+	|
+
+Initial Fleet Fuel Economy GGE i[CONVENTIONAL]=
+	Initial GAS FE GGE ~~|
+Initial Fleet Fuel Economy GGE i[HYBRID]=
+	Initial HYBRID FE GGE ~~|
+Initial Fleet Fuel Economy GGE i[ELECTRIC]=
+	Initial ELECTRIC FE GGE
+	~	miles/GGE
+	~	Initial fuel efficiency of a vehicle of platform i
+	|
+
+Top Speed by Platform j[CONVENTIONAL]=
+	GAS Top Speed ~~|
+Top Speed by Platform j[HYBRID]=
+	HYBRID Top Speed ~~|
+Top Speed by Platform j[ELECTRIC]=
+	ELECTRIC Top Speed
+	~	miles/hour
+	~	Top speed of a vehicle of platform j
+	|
+
+Effective Range if[CONVENTIONAL, Infrastructure]=
+	IF THEN ELSE(Infrastructure=GASPUMP, MAX(Platform Range jf[CONVENTIONAL, GASPUMP]-Fuel Buffer i\
+		[CONVENTIONAL],0), 0) ~~|
+Effective Range if[HYBRID, Infrastructure]=
+	IF THEN ELSE(Infrastructure=GASPUMP, MAX(Platform Range jf[HYBRID, GASPUMP]-Fuel Buffer i\
+		[HYBRID],0), 0) ~~|
+Effective Range if[ELECTRIC,Infrastructure]=
+	IF THEN ELSE(Infrastructure=PLUG, MAX(Platform Range jf[ELECTRIC, PLUG]-Fuel Buffer i\
+		[ELECTRIC],0), 0)
+	~	miles/vehicles
+	~	Effective useful range of a vehicle accounting for buffer, which is \
+		reserved to find a refueling station, by platform and by stations
+	|
+
+Emissions per Mile j[TechnologyTo]=
+	Emissions per Mile Gasoline j[TechnologyTo]+
+	Emissions per Mile HYBRID j[TechnologyTo]+
+	Emissions per Mile of ELECTRIC j[TechnologyTo]
+	~	tonnes CO2e/miles
+	~	Emissions per mile of new vehicles, by platform
+	|
+
+Vehicle Operating Cost i[CONVENTIONAL]=
+	ZIDZ(Retail Fuel Price r[GASOLINEFUEL],FE of New Vehicles by Platform j[CONVENTIONAL\
+		]) ~~|
+Vehicle Operating Cost i[HYBRID]=
+	ZIDZ(Retail Fuel Price r[GASOLINEFUEL], FE of New Vehicles by Platform j[HYBRID] ) ~~|
+Vehicle Operating Cost i[ELECTRIC]=
+	ZIDZ(Retail Fuel Price r[ELECTRICITY], FE of New Vehicles by Platform j[ELECTRIC] )
+	~	$/miles
+	~		|
+
+GHG Emissions Factor r[GASOLINEFUEL]=
+	GHG Emissions Factor GAS GGE ~~|
+GHG Emissions Factor r[ELECTRICITY]=
+	GHG Emissions Factor ELECTRIC GGE
+	~	tonnes CO2e/GGE
+	~	Greenhouse gas emissions, by fuel
+		
+		http://www.epa.gov/greenpower/pubs/calcmeth.htm
+		GREET
+	|
+
+Share ij[Technology,CONVENTIONAL]=
+	Gasoline Share i[Technology] ~~|
+Share ij[Technology,HYBRID]=
+	Hybrid Share i[Technology] ~~|
+Share ij[Technology,ELECTRIC]=
+	ELECTRIC Share i[Technology]
+	~	dmnl
+	~	Share of drivers of platform i choosing platform j given current level of \
+		consumer utility and familiarity
+	|
+
+"Cumulative R&D for Fuel Efficiency"= INTEG (
+	"R&D for Fuel Efficiency",
+		"Initial R&D for Fuel Efficiency")
+	~	$
+	~	Cumulative R&D spending on fuel efficiency improvement
+	|
+
+Vehicle Cost i[Technology]=
+	Base Vehicle Cost i[Technology]+IC Engine Cost i[Technology]+ELECTRIC Architecture Cost i\
+		[Technology]+Energy Storage i[
+	Technology]
+	~	$/vehicles
+	~		|
+
+Logit Denominator i[Technology]=
+	IF THEN ELSE(Affinity ij[Technology,CONVENTIONAL]=0, 0, Affinity ij[Technology,CONVENTIONAL\
+		])+
+	IF THEN ELSE(Affinity ij[Technology,HYBRID]=0, 0, Affinity ij[Technology,HYBRID])+
+	IF THEN ELSE(Affinity ij[Technology,ELECTRIC]=0, 0, Affinity ij[Technology,ELECTRIC]\
+		)
+	~	dmnl
+	~	Total of affinities of drivers of platform i across all possible platforms \
+		j
+	|
+
+Emissions per Mile i[Technology]=
+	Emissions per Mile of HYBRID i[Technology]+
+	Emissions per Mile Gasoline i[Technology]+
+	Emissions per Mile ELECTRIC i[Technology]
+	~	tonnes CO2e/miles
+	~	Emissions per mile of all vehicles, by platform
+	|
+
+New Buffer i[Technology]=
+	MIN(a i[Technology]*Maximum Buffer, Distance to Station to Buffer i[Technology])
+	~	miles/vehicles
+	~	Buffer bound by maximum buffer size
+	|
+
+Maximum Buffer=
+	0.99
+	~	dmnl
+	~	Maximum fraction of a full range of the vehicle that drivers could use as \
+		a buffer. It is a complement to 1 of a minimum useful driving range \
+		drivers are expecting from a car
+	|
+
+"R&D for Fuel Efficiency"=
+	SUM("R&D For Fuel Efficiency i"[Technology!])
+	~	$/year
+	~	Change in R&D spending on fuel efficiency improvement
+	|
+
+Fuel Efficiency Beta=
+	-LOG(1-Fuel Efficiency Learning Rate, 2)
+	~	dmnl
+	~	Fuel Efficiency learning curve strength
+	|
+
+Incentive Value j[CONVENTIONAL]=
+	0 ~~|
+Incentive Value j[HYBRID]=
+	0 ~~|
+Incentive Value j[ELECTRIC]=
+	0
+	~	$/vehicles
+	~	Government incentive for vehicles, by platform. This variable reduces the \
+		effective price customers pay for the vehicle.
+	|
+
+Service Cost i[Technology]=
+	MAX(0, Value of Time*(Transaction Time+(a i[Technology]-New Buffer i[Technology])/(Fuel Dispensing Rate i\
+		[Technology]*FE i
+	[Technology])) - Offset of Service Cost by other useful activities i[Technology])
+	~	$/vehicle
+	~	Cost of filling a storage of a vehicle of platform i from pump
+	|
+
+Increase in FE i[Technology]=
+	FE of New Vehicles by Platform j[Technology]*Order Fulfillment j[Technology]
+	~	miles*vehicles/GGE/year
+	~	Increase in fuel efficiency of all vehicles of platform i due to new \
+		vehicle sales
+	|
+
+VMT per Year i[Technology]=
+	12000
+	~	miles/vehicles/year
+	~	Miles traveled per year by an average vehicle, by platform
+	|
+
+Effect of Learning on Fuel Efficiency=
+	ZIDZ("Cumulative R&D for Fuel Efficiency","Initial R&D for Fuel Efficiency")^-Fuel Efficiency Beta
+	~	dmnl
+	~	Effect of R&D on fuel efficiency
+	|
+
+Retail Fuel Price r[Fuels]=
+	(Fuel Price r[Fuels]+Carbon Tax r[Fuels])
+	~	$/GGE
+	~	Retail price of a fuel, by fuel type
+	|
+
+Gasoline Price Rate=
+	Initial Price Gasoline*Total Simulation Price Change Rate GASOLINE/FINAL TIME
+	~	($/gallon)/year
+	~	Change of price of gasoline
+	|
+
+Emissions per Mile HYBRID j[TechnologyTo]=
+	IF THEN ELSE(TechnologyTo=HYBRID, ZIDZ(GHG Emissions Factor r[GASOLINEFUEL],FE of New Vehicles by Platform j\
+		[TechnologyTo]
+), 0)
+	~	tonnes CO2e/miles
+	~	Emissions per mile of new vehicles using hybrid drivetrain
+	|
+
+"R&D For Fuel Efficiency i"[Technology]=
+	OEM Revenue i[Technology]*Fraction of Industry Revenue for Fuel Efficiency RandD
+	~	$/year
+	~	R&D budget for fuel efficiency improvement
+	|
+
+Average FE by Platform i[Technology]=
+	XIDZ(Cumulative FE of Vehicle by Platform i[Technology], Installed Base i[Technology\
+		], FE of New Vehicles by Platform j[Technology] )
+	~	miles/GGE
+	~	Average fuel efficiency of a vehicle of platform i
+	|
+
+FE of New Vehicles by Platform j[Technology]=
+	IF THEN ELSE(Fuel Efficiency i[Technology]=0,0,1/Fuel Efficiency i[Technology])
+	~	miles/GGE
+	~	Average fuel efficiency of a new vehicle of platform i
+	|
+
+Regular Marketing Spending i[Technology]=
+	OEM Revenue i[Technology]/Dollars per Million*Marketing Fraction of Revenue
+	~	million/year
+	~	Actual marketing spending of OEMs, by platform
+	|
+
+Emissions per Mile Gasoline j[TechnologyTo]=
+	IF THEN ELSE(TechnologyTo=CONVENTIONAL, ZIDZ(GHG Emissions Factor r[GASOLINEFUEL],FE of New Vehicles by Platform j\
+		[TechnologyTo]
+), 0)
+	~	tonnes CO2e/miles
+	~	Emissions per mile of new vehicles using gasoline
+	|
+
+Emissions per Mile of ELECTRIC j[TechnologyTo]=
+	IF THEN ELSE(TechnologyTo=ELECTRIC, ZIDZ(GHG Emissions Factor r[ELECTRICITY], FE of New Vehicles by Platform j\
+		[ELECTRIC]), 0 )
+	~	tonnes CO2e/miles
+	~	Emissions per mile of new vehicles using the ELECTRICITY
+	|
+
+Total Simulation Price Change Rate GASOLINE= GAME (
+	0)
+	~	dmnl
+	~	Total change in price of gasoline by the end of simulation. Assuming \
+		linear ramp.
+	|
+
+"GHG Emissions Factor - ELECTRICITY"=
+	0.023
+	~	tonnes CO2e/GGE
+	~	Emissions factor of ELECTRICITY
+		The US grid has 0.00069 tonnes CO2 / kWh 
+		http://www.epa.gov/energy/ghg-equivalencies-calculator-calculations-and-references
+		and with 33.4 kWh/GGE, 0.00069 * 33.4 = 0.023 tonnes CO2/GGE.
+	|
+
+Initial Price ELECTRICITY=
+	5
+	~	$/GGE
+	~	Price of the ELECTRICITY at the beginning of simulation
+	|
+
+Gasoline Price= INTEG (
+	Gasoline Price Rate,
+		Initial Price Gasoline)
+	~	$/gallon
+	~	Current price of gasoline
+	|
+
+Initial Price Gasoline=
+	3.6
+	~	$/gallon
+	~	Price of gasoline at the beginning of simulation
+	|
+
+ELECTRICITY Price= INTEG (
+	ELECTRICITY Price Rate,
+		Initial Price ELECTRICITY)
+	~	$/GGE
+	~	Current price of the ELECTRICITY
+	|
+
+ELECTRICITY Price Rate=
+	Initial Price ELECTRICITY*Total Simulation Price Change Rate ELECTRICITY/FINAL TIME
+	~	$/GGE/year
+	~	Change of price of the ELECTRICITY
+	|
+
+"Cumulative Experience - BATTERY i"[Technology]= INTEG (
+	"Experience Gain - BATTERY i"[Technology],
+		Initial Experience BATTERY i[Technology])
+	~	GGE
+	~	Cumulative experience with BATTERY technology
+	|
+
+Wait Cost i[Technology]=
+	Value of Time*Target Queue Time i[Technology]*
+	ZIDZ( ( XIDZ(1 , (1-Infrastructure Utilization i[Technology])^Alpha, 1e+20) - 1 ) , \
+		ZIDZ( Target Utilization i[Technology
+	] , (1 - Target Utilization i[Technology])) )
+	~	$/vehicle
+	~	Cost of waiting in queue at a refueling station for a driver of platform i
+	|
+
+Order Fulfillment j[TechnologyTo]=
+	Platform Demand j[TechnologyTo]
+	~	vehicles/year
+	~	Number of vehicles manufactured per year, by platform
+	|
+
+Learning Share ia[Technology,Attribute]=
+	Initial Learning Share ia[Technology,Attribute]
+	~	dmnl
+	~	Share of learning experience effect on architecture a of platform i
+	|
+
+Current Carbon Price=
+	0
+	~	$/tonnes CO2e [?,?,5]
+	~	Current carbon price of tonne CO2e
+	|
+
+Probability OOF i[CONVENTIONAL]=
+	EXP(-Density of Stations f[GASPUMP]*PI*New Buffer i[CONVENTIONAL]^2*Average Distance Unit Correction\
+		) ~~|
+Probability OOF i[HYBRID]=
+	EXP(-Density of Stations f[GASPUMP]*PI*New Buffer i[HYBRID]^2*Average Distance Unit Correction\
+		) ~~|
+Probability OOF i[ELECTRIC]=
+	EXP(-Density of Stations f[PLUG]*PI*New Buffer i[ELECTRIC]^2*Average Distance Unit Correction\
+		)
+	~	dmnl
+	~	Probability of running out of fuel for platform i
+	|
+
+Suggested Buffer i[Technology]=
+	IF THEN ELSE(Platform Introduced j[Technology]=1, New Buffer i[Technology], New Buffer i\
+		[Technology])
+	~	miles/vehicles
+	~	The buffer suggested by the model bound and adjusted for the platform \
+		introduction
+	|
+
+Unit conversion for distance to station to buffer=
+	1
+	~	miles/vehicles
+	~	Dummy variable to correct for unit errors
+	|
+
+OOF Cost i[Technology]=
+	Value of Time*"Out-of-Fuel Recovery Time"*Probability OOF i[Technology]
+	~	$/vehicle
+	~	Cost of running out of fuel for a driver of platform i
+	|
+
+Buffer miles per Distance to Stations parameter=
+	20
+	~	miles/vehicles
+	~	A parameter scaling distance to stations curve to buffer miles
+	|
+
+Offset of Service Cost by other useful activities i[Technology]=
+	Time in other useful activities i[Technology]*Value of Time
+	~	$/vehicle
+	~	Offset of cost of filling the storage of platform i due to some other \
+		useful things a driver can do during the refueling (shopping, eating etc.)
+	|
+
+Utility j[TechnologyTo]=
+	MAX(Min Utility, Platform Introduced j[TechnologyTo]*(U1 j[TechnologyTo]+U2 j[TechnologyTo\
+		]+U3 j[TechnologyTo]+U4 j[TechnologyTo]+U5 j[TechnologyTo]+U6 j[TechnologyTo]+U7 j[\
+		TechnologyTo]+U8 j[TechnologyTo]))
+	~	dmnl
+	~	Von Neumann-Morgenstern consumer utility of a vehicle of the platform j
+	|
+
+Min Utility=
+	-20
+	~	dmnl
+	~	Min utility bound to prevent floating point overflow from very large \
+		negative numbers
+	|
+
+Gasoline Share i[Technology]=
+	IF THEN ELSE(Affinity ij[Technology,CONVENTIONAL]=0, 0 , ZIDZ(Affinity ij[Technology\
+		,CONVENTIONAL],Logit Denominator i[Technology]) )
+	~	dmnl
+	~	Share of drivers of platform i choosing gasoline platform
+	|
+
+Logit Choice Scaling=
+	1
+	~	dmnl
+	~	Scaling factor of MNL choice model
+	|
+
+Hybrid Share i[Technology]=
+	IF THEN ELSE(Affinity ij[Technology,HYBRID]=0, 0 , ZIDZ(Affinity ij[Technology,HYBRID\
+		],Logit Denominator i[Technology]) )
+	~	dmnl
+	~	Share of drivers of platform i choosing hybrid platform
+	|
+
+Fuel Consumed per Platform ir[Technology,Fuels]=
+	ZIDZ(VMT Public per Year by Platform and by Fuel ir[Technology,Fuels],FE by Platform by Fuel ir\
+		[Technology,Fuels])*Installed Base i[Technology]
+	~	GGE/year
+	~	Total amount of fuel r consumed by a platform i per year
+	|
+
+Recent Station Profit Margin f[Infrastructure]=
+	SMOOTH(Normalised Station profit Margin f[Infrastructure],Infrastructure Perception Time\
+		)
+	~	dmnl
+	~		|
+
+Emissions per Mile ELECTRIC i[Technology]=
+	IF THEN ELSE(Technology=ELECTRIC, ZIDZ(GHG Emissions Factor r[ELECTRICITY], Average FE by Platform i\
+		[ELECTRIC]) , 0 )
+	~	tonnes CO2e/miles
+	~	Emissions per mile of all vehicles using the ELECTRICITY
+	|
+
+U2 j[TechnologyTo]=
+	Operating Cost Weight*Vehicle Operating Cost in Cents i[TechnologyTo]
+	~	dmnl
+	~	Operating cost component of von Neumann-Morgenstern utility function
+	|
+
+Emissions per Mile Gasoline i[Technology]=
+	IF THEN ELSE(Technology=CONVENTIONAL, ZIDZ(GHG Emissions Factor r[GASOLINEFUEL], Average FE by Platform i\
+		[Technology] ) , 0)
+	~	tonnes CO2e/miles
+	~	Emissions per mile of all vehicles using gasoline
+	|
+
+Desired Infrastructure Aquisition Rate f[Infrastructure]=
+	Infrastructure Loss Rate f[Infrastructure]+Infrastructure Stock Level Adjustment f[Infrastructure\
+		]
+	~	stations/year
+	~	Desired rate of orders for new stations
+	|
+
+Desired Infrastructure Under Construction f[Infrastructure]=
+	Time to Install Infrastructure f[Infrastructure] * Desired Infrastructure Aquisition Rate f\
+		[Infrastructure]
+	~	stations
+	~	Desired level of stations being built
+	|
+
+Infrastructure Stock Level Adjustment f[Infrastructure]=
+	ZIDZ( Desired Infrastructure f[Infrastructure]-Available Infrastructure f[Infrastructure\
+		], Time to Install Infrastructure f[Infrastructure] )
+	~	stations/year
+	~	Adjustment for the rate of orders for new stations from comparing current \
+		and desired stock level
+	|
+
+Infrastructure Supply Line Adjustment f[Infrastructure]=
+	(Desired Infrastructure Under Construction f[Infrastructure]-Infrastructure in Construction f\
+		[Infrastructure])/Supply Line Adjustment Time f[Infrastructure]
+	~	stations/year
+	~	Adjustment for the new orders for refueling stations by accounting for the \
+		supply line of stations being built
+	|
+
+Full Refueling Cost i[Technology]=
+	(Search Cost i[Technology]+Wait Cost i[Technology]+Service Cost i[Technology]+OOF Cost i\
+		[Technology])*Number of Refuels per Year i
+	[Technology]*Platform Introduced j[Technology]*IF THEN ELSE(Refueling possibility i[\
+		Technology]=0, 2, 1)
+	~	$/(year*vehicles)
+	~	Full cost associated with search, wait, and refueling of a vehicle of \
+		platform i
+	|
+
+Search Cost i[Technology]=
+	Value of Time*Average Distance to Station i[Technology]/Average Speed
+	~	$/vehicle
+	~	Cost of searching for a refueling station for a driver of platform i
+	|
+
+Refueling possibility i[Technology]=
+	IF THEN ELSE(Average Distance to Station i[Technology]>=Platform Range i[Technology]\
+		, 0, 1)
+	~	dmnl
+	~	Trigger that is 1 when platform range is enough to reach a refueling \
+		station
+	|
+
+Range Weight= GAME (
+	0.2)
+	~	dmnl
+	~	Weight of the range in the consumer utility
+	|
+
+Effective Base Vehicle Spillover Matrix ij[Technology,TechnologyTo]=
+	IF THEN ELSE (Technology=TechnologyTo, 1, Extent of Base Vehicle Technology Learning Spillovers\
+		)
+	~	dmnl
+	~	Effective spillovers of base vehicle architecture from platform i to \
+		platform j
+	|
+
+Number of Refuels per Year i[Technology]=
+	VMT i[Technology]/(a i[Technology]-Fuel Buffer i[Technology])
+	~	1/year
+	~	Number of refuels an average vehicle of platform i needs per year
+	|
+
+Extent of Base Vehicle Technology Learning Spillovers= GAME (
+	0.85)
+	~	dmnl
+	~	Spillover effect of base vehicle technology (on a scale from 0 to 1)
+	|
+
+Effective ICE Technology Array ij[Technology,TechnologyTo]=
+	IF THEN ELSE (Technology=TechnologyTo, 1, ICE Technology Matrix ij[Technology,TechnologyTo\
+		]*Extent of ICE Technology Learning Spillovers
+	)
+	~	dmnl
+	~	Effective spillovers of internal combustion engine technology from \
+		platform i to platform j
+	|
+
+Max Utility from Range=
+	Range A^2/(4*Range B)
+	~	dmnl
+	~	The maximum utility a consumer gets from increased vehicle range
+	|
+
+Extent of ICE Technology Learning Spillovers= GAME (
+	0.85)
+	~	dmnl
+	~	Spillover effect of internal combustion engine technology (on a scale from \
+		0 to 1)
+	|
+
+ELECTRIC Vehicle Technology Matrix ij[Technology,TechnologyTo]=
+	IF THEN ELSE(Technology=HYBRID,
+	  IF THEN ELSE(TechnologyTo=ELECTRIC,0.7,0),
+	IF THEN ELSE(Technology=ELECTRIC,
+	  IF THEN ELSE(TechnologyTo=HYBRID,0.7,0),
+	 0))
+	~	dmnl
+	~	Mapping of possible spillovers of ELECTRIC vehicle technology from \
+		platform i to platform j
+	|
+
+Range at Peak Utility=
+	Range A/(2*Range B)*Vehicle Range Normalizer
+	~	miles/vehicles
+	~	Range that yields the max utility given the weights
+	|
+
+U7 j[TechnologyTo]=
+	Fuel Search Cost j[TechnologyTo]*Fuel Search Cost Weight*SW Endogenous Infrastructure
+	~	dmnl
+	~	Fuel search component of von Neumann-Morgenstern utility function
+	|
+
+Fuel Search Cost Weight=
+	-0.17
+	~	dmnl/(cents/miles)
+	~	Weight of the fuel search cost in the consumer utility
+	|
+
+Vehicle Range Normalizer=
+	100
+	~	miles/vehicles
+	~	Dummy variable for unit corrections
+	|
+
+U5 j[TechnologyTo]=
+	IF THEN ELSE(Vehicle range j[TechnologyTo] >= Range at Peak Utility, Max Utility from Range\
+		, Range A*(Vehicle range j[TechnologyTo
+	]/Vehicle Range Normalizer) - Range B*(Vehicle range j[TechnologyTo]/Vehicle Range Normalizer\
+		)^2)*Range Weight
+	~	dmnl
+	~	Range component of von Neumann-Morgenstern utility function
+	|
+
+Time in other useful activities i[Technology]=
+	0,0,0.25
+	~	hour/vehicle
+	~	When fueling, drivers/passengers may be able to carry out other activities \
+		that are useful so that the fueling time is not "wasted" and should not \
+		count against the utility of the vehicle.  We assume that the time spent \
+		in other useful activities is zero for all platforms except ELECTRIC, \
+		which have a large refuel time, during which people may be either at work, \
+		shopping, or in other useful activities. Since not all occasions for \
+		refueling an ELECTRIC will be in such circumstances, we assume a lower \
+		value for the saved time.
+	|
+
+Range A=
+	1.268
+	~	dmnl
+	~	Brownstone Bunch and Train (http://www.uctc.net/papers/597.pdf) estimate \
+		an attribute formulation for range, the upward sloping segment of a \
+		negative quadratic: 1.268*Range-0.116*(Range^2)
+	|
+
+Range B=
+	0.116
+	~	dmnl
+	~	Brownstone Bunch and Train (http://www.uctc.net/papers/597.pdf) estimate \
+		an attribute formulation for range, the upward sloping segment of a \
+		negative quadratic: 1.268*Range-0.116*(Range^2)
+	|
+
+Initial GAS FE GGE=
+	Initial GAS FE*Native units to GGE Gasoline
+	~	miles/GGE
+	~	Initial fuel efficiency of a vehicle of gasoline platform in GGE
+	|
+
+GHG Emissions Factor GAS GGE=
+	"GHG Emissions Factor - Gasoline"*Native units to GGE Gasoline
+	~	tonnes CO2e/GGE
+	~	Emissions of gasoline per GGE consumed
+	|
+
+"Vehicle Fuel Capacity by Platform-Fuel ir"[CONVENTIONAL,Fuels]=
+	IF THEN ELSE(Fuels=GASOLINEFUEL, Tank GGE j[CONVENTIONAL] , 0 ) ~~|
+"Vehicle Fuel Capacity by Platform-Fuel ir"[ELECTRIC,Fuels]=
+	IF THEN ELSE(Fuels=ELECTRICITY, BATTERY i[ELECTRIC]/Native units to GGE ELECTRICITY \
+		, 0 ) ~~|
+"Vehicle Fuel Capacity by Platform-Fuel ir"[HYBRID,Fuels]=
+	IF THEN ELSE(Fuels =GASOLINEFUEL, Tank GGE j[HYBRID] , 0 )
+	~	GGE/vehicles
+	~	Capacity of fuel r in a vehicle of platform i
+	|
+
+Initial HYBRID FE GGE=
+	Initial HYBRID FE*Native units to GGE Gasoline
+	~	miles/GGE
+	~	Initial fuel efficiency of a vehicle of hybrid platform in GGE
+	|
+
+Buffer Change Rate[Technology]=
+	Platform Introduced j[Technology]*(Suggested Buffer i[Technology]-Fuel Buffer i[Technology\
+		])/(Buffer Adjust Time)
+	~	miles/vehicles/year
+	~	Rate of change of fuel buffer. Information delay structure
+	|
+
+Reference Platform Fuel Efficiency i[Technology]=
+	IF THEN ELSE(Initial Fleet Fuel Economy GGE i[Technology]=0,0,1/Initial Fleet Fuel Economy GGE i\
+		[Technology])
+	~	GGE/miles
+	~	Reference inverted fuel efficiency of platform i
+	|
+
+Emissions per Mile of HYBRID i[Technology]=
+	IF THEN ELSE(Technology=HYBRID, ZIDZ(GHG Emissions Factor r[GASOLINEFUEL],Average FE by Platform i\
+		[Technology]), 0)
+	~	tonnes CO2e/miles
+	~	Emissions per mile of all vehicles using hybrid drivetrain
+	|
+
+Initial ELECTRIC FE GGE=
+	Initial ELECTRIC FE
+	~	miles/GGE
+	~	Initial fuel efficiency of a vehicle of ELECTRIC platform in GGE
+	|
+
+GHG Emissions Factor ELECTRIC GGE=
+	"GHG Emissions Factor - ELECTRICITY"*Native units to GGE ELECTRICITY
+	~	tonnes CO2e/GGE
+	~	Emissions of the ELECTRICITY per GGE consumed
+	|
+
+Fuel Buffer i[Technology]= INTEG (
+	Buffer Change Rate[Technology],
+		IF THEN ELSE(Platform Introduced j[Technology]=1, New Buffer i[Technology], New Buffer i\
+		[Technology]))
+	~	miles/vehicles
+	~	Perceived fuel buffer (amount of miles left on a remaining fuel when \
+		drivers begin search for a refueling station)
+	|
+
+FE by Platform by Fuel ir[Technology,Fuels]=
+	Fuel Usage Matrix ir[Technology,Fuels]*Average FE by Platform i[Technology]
+	~	miles/GGE
+	~	Average fuel economy of a platform i using fuel r
+	|
+
+Buffer Adjust Time=
+	TIME STEP * 2
+	~	year
+	~	Time to change the buffer
+	|
+
+Infrastructure Order Rate f[Infrastructure]=
+	MAX(0, Desired Infrastructure Aquisition Rate f[Infrastructure] + Infrastructure Supply Line Adjustment f\
+		[Infrastructure])
+	~	stations/year
+	~	Order rate of new refueling stations
+	|
+
+VMT i[CONVENTIONAL]=
+	VMT Public per Year by Platform and by Fuel ir[CONVENTIONAL,GASOLINEFUEL] ~~|
+VMT i[HYBRID]=
+	VMT Public per Year by Platform and by Fuel ir[HYBRID,GASOLINEFUEL] ~~|
+VMT i[ELECTRIC]=
+	VMT Public per Year by Platform and by Fuel ir[ELECTRIC,ELECTRICITY]
+	~	miles/vehicles/year
+	~	Number of miles traveled per year by an average vehicle of a platform i
+	|
+
+Fraction of Industry Revenue for Fuel Efficiency RandD= GAME (
+	0.02)
+	~	dmnl
+	~	Fraction of revenue for fuel efficiency improvement
+	|
+
+Native units to GGE Gasoline=
+	1
+	~	gallon/GGE
+	~	Conversion rate from native capacity units for gasoline (gallons used in \
+		the market) to GGE
+	|
+
+Relative Efficiency i[Technology]=
+	1+(Fuel Efficiency Spillover Strength i[Technology]*(Effect of Learning on Fuel Efficiency\
+		-1))
+	~	dmnl
+	~	Normlalized fuel efficiency of platform i (from 0 to 1)
+	|
+
+Carbon Tax r[Fuels]=
+	Current Carbon Price*GHG Emissions Factor r[Fuels]
+	~	$/GGE
+	~	Carbon tax on fuel based on emission impact
+	|
+
+Fuel Efficiency Spillover Strength i[Technology]=
+	1,0.8,0.5
+	~	dmnl
+	~	Strength of spillovers of fuel efficiency technology for platform i
+	|
+
+Fuel Efficiency Learning Rate= GAME (
+	0.2)
+	~	dmnl
+	~	Fuel Efficiency learning curve rate. Indicates fractional decrease in fuel \
+		efficiency with every doubling of R&D expenses
+	|
+
+"Initial R&D for Fuel Efficiency"=
+	5e+10
+	~	$
+	~	Initial R&D spending on fuel efficiency improvement
+	|
+
+"Initial Installed Base - Vehicles 0 to 4 years i"[Technology]=
+	((Vehicles Retirement Fraction*Aging Time Lambda*(1 + Vehicles 5 to 8 Discard Fraction\
+		*Aging Time Lambda)*(1 + Vehicles 9 to 12 Discard Fraction*Aging Time Lambda))/
+	  (1 + Vehicles Retirement Fraction*Aging Time Lambda*(3 + Aging Time Lambda*(Vehicles 5 to 8 Discard Fraction\
+		 + 2*Vehicles 9 to 12 Discard Fraction + Vehicles 5 to 8 Discard Fraction*Vehicles 9 to 12 Discard Fraction\
+		*Aging Time Lambda))))*Light Vehicle Market Size j[Technology]
+	~	vehicles
+	~	Initial installed base of new vehicles given the total fleet size
+	|
+
+Cumulative FE of Vehicle by Platform i[Technology]= INTEG (
+	Increase in FE i[Technology]-Decrease in FE i[Technology],
+		Installed Base i[Technology]*Initial Fleet Fuel Economy GGE i[Technology])
+	~	miles*vehicles/GGE
+	~	Cumulative fuel efficiency of a vehicle of platform i
+	|
+
+Decrease in FE i[Technology]=
+	Vehicle Discards i[Technology]*Average FE by Platform i[Technology]
+	~	miles*vehicles/GGE/year
+	~	Decrease in fuel efficiency of all vehicles of platform i due to vehicle \
+		discards
+	|
+
+Average Distance to Station f[Infrastructure]=
+	SQRT(XIDZ(1, Density of Stations f[Infrastructure]*Average Distance Unit Correction,\
+		 1e+20))/2
+	~	miles/vehicles
+	~	Average distance to a refueling station
+	|
+
+Average Distance Unit Correction=
+	1
+	~	vehicles*vehicles/stations
+	~	Dummy variable ro correct unit errors
+	|
+
+Infrastructure in Construction f[Infrastructure]= INTEG (
+	Infrastructure Order Rate f[Infrastructure]-Infrastructure Aquisition Rate f[Infrastructure\
+		],
+		Initial Infrastructure in Construction f[Infrastructure])
+	~	stations
+	~	Number of stations being built
+	|
+
+OEM Revenue i[Technology]=
+	Order Fulfillment j[Technology]*MSRP j[Technology]
+	~	$/year
+	~	Revenue of OEM manufacturers, by platform
+	|
+
+Available Infrastructure f[Infrastructure]= INTEG (
+	Infrastructure Aquisition Rate f[Infrastructure]-Infrastructure Exits f[Infrastructure\
+		]+Exogenous Infrastructure f[Infrastructure
+	],
+		Initial Infrastructure Availability f[Infrastructure])
+	~	stations
+	~	Number of refueling stations on the market
+	|
+
+Exogenous Infrastructure f[Infrastructure]=
+	Stations per Year f[Infrastructure]
+	~	stations/year
+	~	Additional rate of introduction of new stations
+	|
+
+Pump Operating Profits r[Fuels]=
+	Pump Fuel Revenues r[Fuels]-Pump Costs r[Fuels]
+	~	$/pump/year
+	~	Yearly profit of a pump from selling fuel r
+	|
+
+Average Familiarity ij[Technology,TechnologyTo]=
+	IF THEN ELSE(Platform Introduction Date j[Technology]>Time, 0 , IF THEN ELSE(Technology\
+		=TechnologyTo, 1, MIN(1, ZIDZ(Cumulative Familiarity ij[Technology,TechnologyTo],Installed Base i\
+		[Technology]))) )
+	~	dmnl
+	~	Average familiarity of platform i with the platform j. Ranges from 0 (new \
+		platform) to 1 (fully familiar).
+	|
+
+Marketing Spillover Matrix ij[Technology,TechnologyTo]=
+	IF THEN ELSE(Technology=TechnologyTo, 1, IF THEN ELSE(Time<Platform Introduction Date j\
+		[TechnologyTo], 0, IF THEN ELSE(
+Technology=CONVENTIONAL, 0, IF THEN ELSE( TechnologyTo=CONVENTIONAL, 0, Extent of Marketing Spillovers
+	))))
+	~	dmnl
+	~	Matrix of possible spillovers of marketing efforts from platform i to \
+		platform j
+	|
+
+VMT SW i[Technology]=
+	IF THEN ELSE(Platform Introduction Date j[Technology]<=Time, 1 , 0 )
+	~	dmnl
+	~	Switch indicating that platform is on the market and is used to drive \
+		average number of miles requested by the market
+	|
+
+Maximum Fuel Dispensing Capacity per Pump r[Fuels]=
+	Fuel Dispensing Rate r[Fuels]*Operating Hours per Year by Fuel r[Fuels]
+	~	GGE/year/pump
+	~	Maximum possible amount of GGEs a pump is serving per year, by fuel
+	|
+
+Introduction Trigger j[TechnologyTo]=
+	IF THEN ELSE(Time < Platform Introduction Date j[TechnologyTo], 0, (1-Platform Introduced j\
+		[TechnologyTo])/TIME STEP)
+	~	dmnl/year
+	~	Platform introduced trigger
+	|
+
+Pump Costs r[Fuels]=
+	Feedstock Cost r[Fuels]*Fuel Consumed Per Pump r[Fuels]+Fuel Consumed Per Pump r[Fuels\
+		]*Pump Operating Cost r[Fuels]
+	~	$/pump/year
+	~	Refueling station total cost
+	|
+
+Target Utilization i[CONVENTIONAL]=
+	Target Utilization f[GASPUMP] ~~|
+Target Utilization i[HYBRID]=
+	Target Utilization f[GASPUMP] ~~|
+Target Utilization i[ELECTRIC]=
+	Target Utilization f[PLUG]
+	~	dmnl
+	~	Target utilization of a refueling station for platform i
+	|
+
+Infrastructure Loss Rate f[Infrastructure]=
+	Infrastructure Exits f[Infrastructure]
+	~	stations/year
+	~	Rate of stations exiting the stock of available stations
+	|
+
+Marketing Spending j[TechnologyTo]=
+	IF THEN ELSE( Platform Introduction Date j[TechnologyTo] > Time , 0, Regular Marketing Spending i\
+		[TechnologyTo]+Spending by Platform j[TechnologyTo])
+	~	million/year
+	~	Total marketing spending to promote the platform j
+	|
+
+Infrastructure Exits f[Infrastructure]=
+	ZIDZ(Available Infrastructure f[Infrastructure],Infrastructure Life f[Infrastructure\
+		])
+	~	stations/year
+	~	Number of refueling stations discarded every year
+	|
+
+Platform Introduced j[TechnologyTo]= INTEG (
+	Introduction Trigger j[TechnologyTo],
+		IF THEN ELSE(Platform Introduction Date j[TechnologyTo]>Time, 0, 1))
+	~	dmnl
+	~	Indicator that is equal 1 when the platform is introduced
+	|
+
+Fuel Consumed Per Pump r[Fuels]=
+	MIN(Maximum Fuel Dispensing Capacity per Pump r[Fuels], 
+	ZIDZ(SUM( Fuel Consumed per Platform ir [Technology!,Fuels]),Pumps by Fuel r[Fuels])\
+		 )
+	~	GGE/year/pump
+	~	Amount of fuel sold by a pump per year, by fuel
+	|
+
+Supply Line Adjustment Time f[Infrastructure]=
+	0.5, 0.1
+	~	year
+	~	Time to adjust orders for new stations
+	|
+
+Infrastructure Aquisition Rate f[Infrastructure]=
+	ZIDZ(Infrastructure in Construction f[Infrastructure],Time to Install Infrastructure f\
+		[Infrastructure])
+	~	stations/year
+	~	Rate of construction completion and turning on of new stations
+	|
+
+"Out-of-Fuel Recovery Time"=
+	5
+	~	hour/vehicles
+	~	Average time required to tow a vehicle with empty storage to a nearest \
+		refueling station
+	|
+
+a i[Technology]=
+	Platform Range i[Technology]
+	~	miles/vehicles
+	~	A variable to denote platform range
+	|
+
+Fuel Dispensing Rate i[CONVENTIONAL]=
+	Fuel Dispensing Rate r[GASOLINEFUEL] ~~|
+Fuel Dispensing Rate i[HYBRID]=
+	Fuel Dispensing Rate r[GASOLINEFUEL] ~~|
+Fuel Dispensing Rate i[ELECTRIC]=
+	Fuel Dispensing Rate r[ELECTRICITY]
+	~	GGE/hour
+	~	Rate of filing the storage tank of a vehicle of platform i
+	|
+
+Target Queue Time i[CONVENTIONAL]=
+	Target Queue Time f[GASPUMP] ~~|
+Target Queue Time i[HYBRID]=
+	Target Queue Time f[GASPUMP] ~~|
+Target Queue Time i[ELECTRIC]=
+	Target Queue Time f[PLUG]
+	~	hour/vehicles
+	~	Target time a driver of platform i spends in a queue waiting for refueling
+	|
+
+Average Distance to Station i[CONVENTIONAL]=
+	Average Distance to Station f[GASPUMP] ~~|
+Average Distance to Station i[HYBRID]=
+	Average Distance to Station f[GASPUMP] ~~|
+Average Distance to Station i[ELECTRIC]=
+	Average Distance to Station f[PLUG]
+	~	miles/vehicles
+	~	Average distance to a refueling station for platform i
+	|
+
+Target Queue Time f[Infrastructure]=
+	0.08
+	~	hour/vehicles
+	~	Target time a driver spends in a queue at the station f waiting for \
+		refueling
+	|
+
+FE i[CONVENTIONAL]=
+	FE by Platform by Fuel ir[CONVENTIONAL,GASOLINEFUEL] ~~|
+FE i[HYBRID]=
+	FE by Platform by Fuel ir[HYBRID,GASOLINEFUEL] ~~|
+FE i[ELECTRIC]=
+	FE by Platform by Fuel ir[ELECTRIC,ELECTRICITY]
+	~	miles/GGE
+	~	Average fuel economy of a platform i
+	|
+
+Alpha=
+	1
+	~	dmnl
+	~		|
+
+Platform Range i[CONVENTIONAL]=
+	"Range by Platform-Fuel ir"[CONVENTIONAL, GASOLINEFUEL] ~~|
+Platform Range i[HYBRID]=
+	"Range by Platform-Fuel ir"[HYBRID, GASOLINEFUEL] ~~|
+Platform Range i[ELECTRIC]=
+	"Range by Platform-Fuel ir"[ELECTRIC, ELECTRICITY]
+	~	miles/vehicles
+	~	Nominal driving range of platform i
+	|
+
+Refueling Capacity ir[CONVENTIONAL,Fuels]=
+	IF THEN ELSE(Fuels=GASOLINEFUEL, Effective Range ir[CONVENTIONAL,Fuels]/FE by Platform by Fuel ir\
+		[CONVENTIONAL,Fuels], 0) ~~|
+Refueling Capacity ir[HYBRID,Fuels]=
+	IF THEN ELSE(Fuels=GASOLINEFUEL, Effective Range ir[HYBRID,Fuels]/FE by Platform by Fuel ir\
+		[HYBRID,Fuels], 0) ~~|
+Refueling Capacity ir[ELECTRIC,Fuels]=
+	IF THEN ELSE(Fuels=ELECTRICITY, Effective Range ir[ELECTRIC,Fuels]/FE by Platform by Fuel ir\
+		[ELECTRIC,Fuels], 0)
+	~	GGE/vehicles
+	~	Amount of fuel r required by a vehicle of platform i per one refueling
+	|
+
+Refueling Time ir[Technology,Fuels]=
+	ZIDZ(Refueling Capacity ir[Technology,Fuels], Fuel Dispensing Rate r[Fuels] )+Transaction Time by Fuel r
+	 [Fuels]*Fuel Usage Matrix ir[Technology,Fuels]
+	~	hour/vehicles
+	~	Total time to complete refueling of a vehicle of platform i with fuel r
+	|
+
+"Refuels per Year by Platform-Fuel ir"[Technology,Fuels]=
+	ZIDZ(VMT Public per Year by Platform and by Fuel ir[Technology,Fuels],Effective Range ir\
+		[Technology,Fuels])
+	~	dmnl/year
+	~	Number of refuels with fuel r by platform i per year
+	|
+
+Native units to GGE ELECTRICITY=
+	1
+	~	dmnl
+	~	Conversion rate from native capacity units for the ELECTRICITY (used in \
+		the market) to GGE
+	|
+
+Total Simulation Price Change Rate ELECTRICITY= GAME (
+	0)
+	~	dmnl
+	~	Total change in price of the ELECTRICITY by the end of simulation. \
+		Assuming linear ramp.
+	|
+
+Retail Markup r[Fuels]=
+	0.1
+	~	dmnl
+	~	Margin of refueling stations
+	|
+
+Feedstock Cost r[Fuels]=
+	Retail Fuel Price r[Fuels]/(1+Retail Markup r[Fuels])
+	~	$/GGE
+	~	Cost of fuel r for a refueling station
+	|
+
+Pump Fuel Revenues r[Fuels]=
+	Fuel Consumed Per Pump r[Fuels]*Retail Fuel Price r[Fuels]
+	~	$/pump/year
+	~	Revenue of a pump from selling fuel r
+	|
+
+"Initial Installed Base - Vehicles 5 to 8 years i"[Technology]=
+	IF THEN ELSE(SW Initial Stock in Equilibrium=1, Vehicles 0 to 4 years i[Technology]/\
+		(1+Vehicles 5 to 8 Discard Fraction
+	*Aging Time Lambda), (Aging Time Lambda/Vehicle Lifetime)*Light Vehicle Market Size j\
+		[Technology])
+	~	vehicles
+	~	Initial installed base of vehicles 5 to 8 years given the total fleet size
+	|
+
+"Initial Installed Base - Vehicles 13 plus years i"[Technology]=
+	IF THEN ELSE(SW Initial Stock in Equilibrium=1, Vehicles 9 to 12 years i[Technology]\
+		/(Vehicles Retirement Fraction*Aging Time Lambda),
+	((Vehicle Lifetime-3*Aging Time Lambda)/Vehicle Lifetime)*Light Vehicle Market Size j\
+		[Technology])
+	~	vehicles
+	~	Initial installed base of vehicles 13+ years given the total fleet size
+	|
+
+SW Initial Stock in Equilibrium=
+	1
+	~	dmnl
+	~	Switch to initialize stocks in equilibrium
+	|
+
+"Initial Installed Base - Vehicles 9 to 12 years i"[Technology]=
+	IF THEN ELSE(SW Initial Stock in Equilibrium=1, Vehicles 5 to 8 years i[Technology]/\
+		(1+Vehicles 9 to 12 Discard Fraction*Aging Time Lambda), 
+	(Aging Time Lambda/Vehicle Lifetime)*Light Vehicle Market Size j[Technology])
+	~	vehicles
+	~	Initial installed base of vehicles 9 to 12 years given the total fleet size
+	|
+
+Demand for Infrastructure f[GASPUMP]=
+	ZIDZ(Demand for Pump by Fuel type r[GASOLINEFUEL],Pumps per Station f[GASPUMP] ) ~~|
+Demand for Infrastructure f[PLUG]=
+	ZIDZ(Demand for Pump by Fuel type r[ELECTRICITY],Pumps per Station f[PLUG])
+	~	stations
+	~	Total number of refueling stations demanded by the fleet
+	|
+
+Annual Miles by Platform i[Technology]=
+	Installed Base i[Technology]*VMT per Year i[Technology]*VMT SW i[Technology]
+	~	miles/year
+	~	Number of miles driven per year by all vehicles of the platform, by \
+		platform
+	|
+
+"Fleet Refuels Required per Year by Platform-Fuel ir"[Technology,Fuels]=
+	"Refuels per Year by Platform-Fuel ir"[Technology,Fuels]*Installed Base i[Technology\
+		]
+	~	vehicles/year
+	~	Yearly number of refuels required, by platform and fuel
+	|
+
+Transaction Time by Fuel r[Fuels]=
+	0.083
+	~	hour/vehicles
+	~	Average time needed to complete refueling transaction (pay, get a receipt \
+		etc.)
+	|
+
+Demand for Infrastructure by Pumps ir[Technology,Fuels]=
+	ZIDZ("Fleet Refuels Required per Year by Platform-Fuel ir"[Technology,Fuels], (Refueling Capacity per Fueltype per Year ir\
+		[Technology,Fuels]) )
+	~	pump
+	~	Total demand for pumps from vehicles of platform i using fuel r
+	|
+
+"Range by Platform-Fuel ir"[Technology,Fuels]=
+	FE by Platform by Fuel ir[Technology,Fuels]*"Vehicle Fuel Capacity by Platform-Fuel ir"\
+		[Technology,Fuels]
+	~	miles/vehicles
+	~	Nominal driving range of platform i on fuel r
+	|
+
+Refueling Capacity per Fueltype per Year ir[Technology,Fuels]=
+	ZIDZ(Operating Hours per Year by Fuel r[Fuels], Refueling Time ir[Technology,Fuels] \
+		)
+	~	vehicles/pump/year
+	~	Number of vehicles of a platform i demanding fuel r per pump per year
+	|
+
+Demand for Pump by Fuel type r[Fuels]=
+	SUM(Demand for Infrastructure by Pumps ir[Technology!,Fuels])
+	~	pump
+	~	Total demand for pumps, by fuel
+	|
+
+Operating Hours per Year by Fuel r[Fuels]=
+	5500
+	~	hour/year/pump
+	~	Total number of hours a pump operates per year, by fuel
+	|
+
+Pumps by Fuel r[GASOLINEFUEL]=
+	Available Infrastructure f[GASPUMP]*Pumps per Station f[GASPUMP] ~~|
+Pumps by Fuel r[ELECTRICITY]=
+	Available Infrastructure f[PLUG]*Pumps per Station f[PLUG]
+	~	pump
+	~	Number of pumps selling fuel r
+	|
+
+Fuel Usage Matrix ir[Technology,Fuels]=
+	1 ,0 ;
+	
+	1 ,0 ;
+	
+	0, 1 ;
+	~	dmnl
+	~	Matrix mapping fuels to platforms
+		
+		Technology  == CONVENTIONAL, HYBRID, ELECTRIC
+		
+		Fuels = = GASOLINEFUEL,ELECTRICITY
+	|
+
+Infrastructure Fixed Costs Amortized over 20 years f[Infrastructure]=
+	100000,2500
+	~	$/(year*stations)
+	~	Yearly fixed cost of a station that sells fuel r
+	|
+
+Fuels:
+	GASOLINEFUEL,ELECTRICITY
+	~	
+	~		|
+
+Pump Operating Cost r[Fuels]=
+	0.01
+	~	$/GGE
+	~	Refueling station cost of selling fuel (excluding fuel itself)
+	|
+
+Vehicle Discards i[Technology]=
+	Vehicles 0 to 4 Retirements i[Technology]+Vehicles 5 to 8 Retirements i[Technology]+\
+		Vehicles 9 to 12 Retirements i[Technology]+Vehicles 13 plus Retirements i[Technology\
+		]
+	~	vehicles/year
+	~	Total number of vehicles exiting the market (assumed to be equal to new \
+		vehicles purchased to keep the total fleet constant), by platform
+	|
+
+Vehicles Retirement Fraction=
+	0.3
+	~	dmnl/year
+	~	Discard fraction of vehicles 13+ years
+	|
+
+Vehicles 0 to 4 Retirements i[Technology]=
+	NV Discard Fr*Vehicles 0 to 4 years i[Technology]
+	~	vehicles/year
+	~	Discard rate of new vehicles (0 to 4 years)
+	|
+
+Aging Time Lambda=
+	4
+	~	year
+	~	Average time a vehicle spends in each of the aging chain stocks
+	|
+
+Installed Base i[Technology]=
+	Vehicles 0 to 4 years i[Technology]+Used Vehicles i[Technology]
+	~	vehicles
+	~	Total number of vehicles on the road, by platform
+	|
+
+Used Vehicles i[Technology]=
+	Vehicles 5 to 8 years i[Technology]+Vehicles 9 to 12 years i[Technology]+"Vehicles 13+ years i"\
+		[Technology]
+	~	vehicles
+	~	Total number of used vehicles on the road, by platform
+	|
+
+Vehicles 0 to 4 years i[Technology]= INTEG (
+	Vehicle Sales i[Technology]-Vehicles 0 to 4 Retirements i[Technology]-Vehicle Aging i\
+		[Technology],
+		"Initial Installed Base - Vehicles 0 to 4 years i"[Technology])
+	~	vehicles
+	~	New vehicles (0 to 4 years)
+	|
+
+Vehicle Aging i[Technology]=
+	Vehicles 0 to 4 years i[Technology]/Aging Time Lambda
+	~	vehicles/year
+	~	Rate of aging of new vehicles (0 to 4 years)
+	|
+
+Vehicles 5 to 8 years i[Technology]= INTEG (
+	Vehicle Aging i[Technology]-Vehicle Aging 2 i[Technology]-Vehicles 5 to 8 Retirements i\
+		[Technology],
+		"Initial Installed Base - Vehicles 5 to 8 years i"[Technology])
+	~	vehicles
+	~	Used vehicles (5 to 8 years)
+	|
+
+NV Discard Fr=
+	0.001
+	~	dmnl/year
+	~	Discard fraction of new vehicles
+	|
+
+Vehicles 13 plus Retirements i[Technology]=
+	"Vehicles 13+ years i"[Technology]*Vehicles Retirement Fraction
+	~	vehicles/year
+	~	Discard rate of used vehicles (13+ years)
+	|
+
+"Vehicles 13+ years i"[Technology]= INTEG (
+	Vehice Aging 3 i[Technology]-Vehicles 13 plus Retirements i[Technology],
+		"Initial Installed Base - Vehicles 13 plus years i"[Technology])
+	~	vehicles
+	~	Used vehicles (13+ years)
+	|
+
+Vehicles 5 to 8 Discard Fraction=
+	0.01
+	~	dmnl/year
+	~	Discard fraction of vehicles 5 to 8 years
+	|
+
+Vehicles 5 to 8 Retirements i[Technology]=
+	Vehicles 5 to 8 years i[Technology]*Vehicles 5 to 8 Discard Fraction
+	~	vehicles/year
+	~	Discard rate of used vehicles (5 to 8 years)
+	|
+
+Vehicles 9 to 12 Discard Fraction=
+	0.1
+	~	dmnl/year
+	~	Discard fraction of vehicles 9 to 12 years
+	|
+
+Vehicles 9 to 12 Retirements i[Technology]=
+	Vehicles 9 to 12 years i[Technology]*Vehicles 9 to 12 Discard Fraction
+	~	vehicles/year
+	~	Discard rate of used vehicles (9 to 12 years)
+	|
+
+Vehicles 9 to 12 years i[Technology]= INTEG (
+	Vehicle Aging 2 i[Technology]-Vehice Aging 3 i[Technology]-Vehicles 9 to 12 Retirements i\
+		[Technology],
+		"Initial Installed Base - Vehicles 9 to 12 years i"[Technology])
+	~	vehicles
+	~	Used vehicles (9 to 12 years)
+	|
+
+Vehicle Aging 2 i[Technology]=
+	Vehicles 5 to 8 years i[Technology]/Aging Time Lambda
+	~	vehicles/year
+	~	Rate of aging of used vehicles (5 to 8 years)
+	|
+
+Vehice Aging 3 i[Technology]=
+	Vehicles 9 to 12 years i[Technology]/Aging Time Lambda
+	~	vehicles/year
+	~	Rate of aging of used vehicles (9 to 12 years)
+	|
+
+Initial Installed Base i[Technology]=
+	"Initial Installed Base - Vehicles 0 to 4 years i"[Technology]+"Initial Installed Base - Used Vehicles i"\
+		[Technology]
+	~	vehicles
+	~	Total initial installed base of all vehicles, by platform
+	|
+
+"Initial Installed Base - Used Vehicles i"[Technology]=
+	"Initial Installed Base - Vehicles 5 to 8 years i"[Technology]+"Initial Installed Base - Vehicles 9 to 12 years i"\
+		[Technology]+"Initial Installed Base - Vehicles 13 plus years i"[Technology]
+	~	vehicles
+	~	Total initial installed base of used vehicles, by platform
+	|
+
+Ancillary Revenues Per Station[Infrastructure]=
+	0,0
+	~	$/ year /stations
+	~	Additional revenue per station from sale of ancillary products \
+		(convenience store etc.)
+	|
+
+Infrastructure Utilization f[Infrastructure]=
+	MIN(1,ZIDZ(Demand for Infrastructure f[Infrastructure],Available Infrastructure f[Infrastructure\
+		]) )
+	~	dmnl
+	~	Utilization of refueling stations, by infrastructure
+	|
+
+TechnologyFrom<->
+	Technology
+	~	
+	~		|
+
+Familiarity Sales ij[Technology,TechnologyTo]=
+	Average Familiarity ij[Technology,TechnologyTo]*Vehicle Discards i[Technology]
+	~	vehicles/year
+	~	Decrease in familiarity of platform i with platform j per year due to sales
+	|
+
+"Cross-Platform Marketing Spending ij"[Technology,TechnologyTo]=
+	Marketing Spending j[Technology]*Marketing Spillover Matrix ij[Technology,TechnologyTo\
+		]
+	~	million/year
+	~	Full matrix of marketing spending, accounting for regular and additional \
+		spending on platform j, and spillover from platform i to platform j.
+	|
+
+Familiarity Spillover Matrix jk[TechnologyTo,TechnologySpill]=
+	IF THEN ELSE(TechnologyTo=TechnologySpill, 0, IF THEN ELSE( TechnologySpill=CONVENTIONAL\
+		, 0, Extent of Familiarity Spillovers))
+	~	dmnl
+	~	Matrix of possible spillovers of contacts from platform i to platform j
+	|
+
+U8 j[Technology]=
+	IF THEN ELSE(Technology=CONVENTIONAL, 0, (Scope Weight/(1+EXP((-Sensitivity*Delivery Fraction of Scope Threshold j\
+		[Technology])
+	+(Sensitivity/2))))-Scope Weight)
+	~	dmnl
+	~	Platform scope component of von Neumann-Morgenstern utility function
+	|
+
+"Experience Gain - Base Vehicle i"[TechnologyTo]=
+	SUM(Effective Base Vehicle Spillover Matrix ij[Technology!,TechnologyTo]*Order Fulfillment j\
+		[Technology!])*Learning Share ia[TechnologyTo,BASEVEH]
+	~	vehicles/year
+	~	Change in experience with base vehicle architecture
+	|
+
+"Experience Gain - BATTERY i"[TechnologyTo]=
+	SUM(Effective ELECTRIC Vehicle Spillover Matrix ij[Technology!,TechnologyTo]*Order Fulfillment j\
+		[Technology!]*BATTERY i[Technology
+	!])*Learning Share ia[TechnologyTo,BATTERY]
+	~	GGE/year
+	~	Change in experience with BATTERY technology
+	|
+
+"Experience Gain - ELECTRIC Architecture i"[TechnologyTo]=
+	SUM(Effective ELECTRIC Vehicle Spillover Matrix ij[Technology!,TechnologyTo]*Order Fulfillment j\
+		[Technology!])*Learning Share ia[TechnologyTo,ELECARCH]
+	~	vehicles/year
+	~	Change in experience with ELECTRIC vehicle architecture
+	|
+
+"Experience Gain - IC Engine i"[TechnologyTo]=
+	SUM(Effective ICE Technology Array ij[Technology!,TechnologyTo]*Order Fulfillment j[\
+		Technology!])*Learning Share ia[TechnologyTo,ENGINE]
+	~	vehicles/year
+	~	Change in experience with internal combustion engine technology
+	|
+
+Initial Learning Share ia[Technology,Attribute]=
+	0.5, 0.5, 0, 0;
+	0.25,0.25,0.25,0.25;
+	0.25,0.25,0.25,0.25;
+	~	dmnl
+	~	Initial share of learning experience effect on architecture a of platform i
+	|
+
+Marketing Fraction of Revenue=
+	0.005
+	~	dmnl [0,1,0.005]
+	~	Revenue fraction of OEMs dedicated to marketing on a regular basis.
+	|
+
+Dollars per Million=
+	1e+06
+	~	$/million
+	~	Amount of dollars in one million dollars. Dummy variable to correct for \
+		units.
+	|
+
+Extent of Marketing Spillovers=
+	0
+	~	dmnl [0,1,0.5]
+	~	Strength of spillover of marketing of similar platforms. Ranges from 0 (no \
+		spillover) to 1 (full spillover)
+	|
+
+Total Marketing Exposure j[TechnologyTo]=
+	Marketing Effectiveness*SUM("Cross-Platform Marketing Spending ij"[Technology!,TechnologyTo\
+		])
+	~	dmnl/year
+	~	Effective strength of the advertising to promote the platform j. Measures \
+		the effective rate of reducing the gap to full familiarity with platform j \
+		per year.
+	|
+
+Attribute:
+	BASEVEH, ENGINE, ELECARCH, BATTERY
+	~	
+	~		|
+
+Effect of Experience on Base Vehicle Cost i[Technology]=
+	(("Cumulative Experience - Base Vehicle i"[Technology]/Initial Experience Base Vehicle i\
+		[Technology])^-Experience Beta)
+	~	dmnl
+	~	Effect of experience on base vehicle architecture cost
+	|
+
+Cumulative Order Fulfillment j[Technology]= INTEG (
+	Order Fulfillment j[Technology],
+		0)
+	~	vehicles
+	~	Cumulative number of vehicles of platform j manufactured by OEMs
+	|
+
+Scope Weight= GAME (
+	0.5)
+	~	dmnl
+	~	Weight of the scope of the platform in the consumer utility
+	|
+
+Delivery Fraction of Scope Threshold j[Technology]=
+	ZIDZ(Cumulative Order Fulfillment j[Technology],Reference Deliveries)
+	~	dmnl
+	~	Measures the maturity of a platform as a ratio of current production of \
+		the platform to the reference production of a mature platform
+	|
+
+Sensitivity=
+	1
+	~	dmnl
+	~	Sensitivity of utility to the scope of the platform
+	|
+
+Reference Deliveries=
+	2e+07
+	~	vehicles
+	~	Average production of a fully mature platform
+	|
+
+MAX Platform Flag j[Technology]=
+	IF THEN ELSE(Order Fulfillment No GAS j[Technology]=MAX Sales, 1, 0)
+	~	dmnl
+	~	Indicator variable of the leading platform
+	|
+
+MAX Sales=
+	VMAX(Order Fulfillment No GAS j[Technology!])
+	~	vehicles/year
+	~	Mazimum sales among all platforms except for gasoline
+	|
+
+Effective ELECTRIC Vehicle Spillover Matrix ij[Technology,TechnologyTo]=
+	IF THEN ELSE(Technology=TechnologyTo, 1, IF THEN ELSE(SW Learning Spillovers from Leading Platform Only\
+		=1, Leading Platform Spillover Matrix ij[Technology,Technology]*ELECTRIC Vehicle Technology Matrix ij\
+		[Technology,TechnologyTo]*Extent of Platform Learning Spillovers, ELECTRIC Vehicle Technology Matrix ij\
+		[Technology,TechnologyTo]*Extent of Platform Learning Spillovers))
+	~	dmnl
+	~	Effective spillovers of ELECTRIC vehicle technology from platform i to \
+		platform j
+	|
+
+Order Fulfillment No GAS j[Technology]=
+	IF THEN ELSE(Technology=CONVENTIONAL, 0, Order Fulfillment j[Technology])
+	~	vehicles/year
+	~	Number of vehicles manufactured for all platforms except for gasoline
+	|
+
+Leading Platform Spillover Matrix ij[Technology,TechnologySpill]=
+	IF THEN ELSE(MAX Platform Flag j[TechnologySpill]=1, 1, 0)
+	~	dmnl
+	~	Mapping of possible spillovers from leading platform i to platform j
+	|
+
+SW Learning Spillovers from Leading Platform Only=
+	0
+	~	dmnl [0,1,1]
+	~	Switch to allow spillovers from only the most popular platforms
+	|
+
+Initial IC Engine Cost i[CONVENTIONAL]=
+	3000 ~~|
+Initial IC Engine Cost i[HYBRID]=
+	3000 ~~|
+Initial IC Engine Cost i[ELECTRIC]=
+	0
+	~	$/vehicles
+	~	Initial cost of internal combustion engine
+	|
+
+BATTERY Cost i[Technology]=
+	BATTERY i[Technology]*Unit BATTERY Cost i[Technology]
+	~	$/vehicles
+	~	Cost of the BATTERY per vehicle
+	|
+
+Initial ELECTRIC Architecture Cost i[CONVENTIONAL]=
+	0 ~~|
+Initial ELECTRIC Architecture Cost i[HYBRID]=
+	3000 ~~|
+Initial ELECTRIC Architecture Cost i[ELECTRIC]=
+	3000
+	~	$/vehicles
+	~	Initial cost of ELECTRIC vehicle architecture
+	|
+
+GAS Top Speed=
+	120
+	~	miles/hour
+	~	Top speed of a vehicle of gasoline platform
+	|
+
+ELECTRIC Top Speed=
+	100
+	~	miles/hour
+	~	Top speed of a vehicle of ELECTRIC platform
+	|
+
+HYBRID Top Speed=
+	120
+	~	miles/hour
+	~	Top speed of a vehicle of hybrid platform
+	|
+
+Total Annual CO2 Emissions=
+	SUM(Annual Emissions by Platform i[Technology!])
+	~	tonnes CO2e/year
+	~	Total emissions across all platforms
+	|
+
+Annual Emissions by Platform i[Technology]=
+	Annual Manufacturing Emissions by Platform i[Technology]+Annual Operating Emissions by Platform i\
+		[Technology]+Annual Recycling and Disposal Emissions by Platform i[Technology]
+	~	tonnes CO2e/year
+	~	Total emissions from vehicles, by platform
+	|
+
+U4 j[TechnologyTo]=
+	Top Speed Weight*Top Speed by Platform j[TechnologyTo]/100
+	~	dmnl
+	~	Top speed component of von Neumann-Morgenstern utility function
+	|
+
+Top Speed Weight= GAME (
+	0.272)
+	~	dmnl/(miles/hour)
+	~	Weight of the top speed in the consumer utility
+	|
+
+Transaction Time=
+	0.0833
+	~	hour/vehicle
+	~	0.083333
+	|
+
+PI=
+	3.14159
+	~	dmnl
+	~	Pi constant
+	|
+
+Annual Recycling and Disposal Emissions by Platform i[Technology]=
+	Order Fulfillment j[Technology]*GHG Emissions per Vehicle Retired
+	~	tonnes CO2e/year
+	~	Yearly emissions from vehicles retiring, by platform
+	|
+
+Pumps per Station f[Infrastructure]=
+	8, 2
+	~	pump / stations
+	~	Average number of pumps per refueling station
+	|
+
+GHG Emissions per Unit BATTERY Manufactured=
+	0.12
+	~	tonnes CO2e/GGE
+	~	Emissions from manufacturing one unit of ELECTRICITY storage capacity
+		
+		http://pubs.acs.org/doi/suppl/10.1021/es702178s/suppl_file/es702178s-file00\
+		4.pdf
+	|
+
+Value of Time=
+	40
+	~	$/hour
+	~	Average value of an hour of time of a driver
+	|
+
+BATTERY Manufacturing i[Technology]=
+	BATTERY i[Technology]*Order Fulfillment j[Technology]*GHG Emissions per Unit BATTERY Manufactured
+	~	tonnes CO2e/year
+	~	Yearly emissions from manufacturing BATTERY, by platform
+	|
+
+Vehicle Manufacturing i[Technology]=
+	GHG Emissions per Vehicle Manufactured*Order Fulfillment j[Technology]
+	~	tonnes CO2e/year
+	~	Yearly emissions from vehicle manufacturing, by platform
+	|
+
+GHG Emissions per Vehicle Manufactured=
+	8.5
+	~	tonnes CO2e/vehicles
+	~	Emissions from manufacturing the vehicle
+		
+		http://pubs.acs.org/doi/suppl/10.1021/es702178s/suppl_file/es702178s-file00\
+		4.pdf
+	|
+
+Annual Manufacturing Emissions by Platform i[Technology]=
+	Vehicle Manufacturing i[Technology]+BATTERY Manufacturing i[Technology]
+	~	tonnes CO2e/year
+	~	Yearly emissions from manufacturing of a vehicle and its storage, by \
+		platform
+	|
+
+Average Speed=
+	40
+	~	miles/hour
+	~	Average vehicle speed
+	|
+
+GHG Emissions per Vehicle Retired=
+	1.14
+	~	tonnes CO2e/vehicles
+	~	Average emission from a discarded vehicle
+		
+		http://pubs.acs.org/doi/suppl/10.1021/es903729a/suppl_file/es903729a_si_001\
+		.pdf
+	|
+
+"Cumulative Experience - IC Engine i"[Technology]= INTEG (
+	"Experience Gain - IC Engine i"[Technology],
+		Initial Experience IC Engine i[Technology])
+	~	vehicles
+	~	Cumulative experience with internal combustion engine technology
+	|
+
+Effect of Experience on IC Engine Cost i[Technology]=
+	("Cumulative Experience - IC Engine i"[Technology]/Initial Experience IC Engine i[Technology\
+		])^-Experience Beta
+	~	dmnl
+	~	Effect of experience on internal combustion engine cost
+	|
+
+ICE Technology Matrix ij[Technology,TechnologyTo]=
+	1,1,0;
+	1,1,0;
+	0,0,0;
+	~	dmnl
+	~	Mapping of possible spillovers of internal combustion engine technology \
+		from platform i to platform j
+	|
+
+Initial Experience IC Engine i[Technology]=
+	1e+09
+	~	vehicles
+	~	Initial experience with internal combustion engine technology
+	|
+
+Infrastructure Perception Time=
+	0.1
+	~	year
+	~	Time to form opinion about utilization and profitability of refueling \
+		stations
+	|
+
+Recent Utilization f[Infrastructure]=
+	SMOOTH(Infrastructure Utilization f[Infrastructure], Infrastructure Perception Time)
+	~	dmnl
+	~	Perceived utilization of refueling stations
+	|
+
+Emissions Fr j[Technology]=
+	Emissions per Mile j[Technology]/Emissions per Mile j[CONVENTIONAL]
+	~	dmnl
+	~		|
+
+HYBRID Acceleration=
+	4
+	~	seconds
+	~	Acceleration of a vehicle of hybrid platform
+	|
+
+U3 j[TechnologyTo]=
+	Acceleration Weight*Acceleration by Platform j[TechnologyTo]
+	~	dmnl
+	~	Acceleration component of von Neumann-Morgenstern utility function
+	|
+
+GAS Acceleration=
+	4
+	~	seconds
+	~	Acceleration of a vehicle of gasoline platform
+	|
+
+ELECTRIC Acceleration=
+	3.5
+	~	seconds
+	~	Acceleration of a vehicle of ELECTRIC platform
+	|
+
+US Area Square Miles=
+	3.79e+06
+	~	miles*miles
+	~	Total area of the U.S. useful for builiding refueling stations
+	|
+
+Light Vehicle Market Size j[CONVENTIONAL]= GAME (
+	2.4e+08) ~~|
+Light Vehicle Market Size j[HYBRID]=
+	0 ~~|
+Light Vehicle Market Size j[ELECTRIC]=
+	0
+	~	vehicles
+	~	Total market size of vehicles, by platform. Total market size for all \
+		platforms is assumed to be constant.
+	|
+
+Linear Effect of Exposure on Forgetting ij[Technology,TechnologyTo]=
+	MIN(1,MAX(0,
+	
+	Epsilon*Social Exposure Offset EtaRef+0.5-Epsilon*Total Social Exposure to Platform ij\
+		[Technology,TechnologyTo]
+	
+	))
+	~	dmnl
+	~	Forgetting trigger that is equal to 1 when the effective rate of gap \
+		reduction to full familiarity is less than or equal to the minimum \
+		required level to offset forgetting
+	|
+
+Vehicle Lifetime=
+	15
+	~	year
+	~	Average duration of ownership of a vehicle
+	|
+
+Extent of Platform Learning Spillovers= GAME (
+	1)
+	~	dmnl [0,1,0.5]
+	~	Spillover effect of ELECTRIC vehicle technology (on a scale from 0 to 1)
+	|
+
+Infrastructure:
+	GASPUMP,PLUG
+	~	stations
+	~		|
+
+ELECTRIC Range=
+	100
+	~	miles/vehicles [0,600,5]
+	~	Nominal range of a vehicle of ELECTRIC platform
+	|
+
+Normal Forget Rate Phi=
+	0.025
+	~	dmnl/year
+	~	Fractional rate of forgetting familiarity per year
+	|
+
+"Ln(Household Income)"=
+	LN(US Median Household Income/Ln Units Correction)
+	~	dmnl
+	~		|
+
+Infrastructure Life f[Infrastructure]=
+	20
+	~	year
+	~	Average lifetime of a station
+	|
+
+Extent of Familiarity Spillovers= GAME (
+	0)
+	~	dmnl [0,1,0.5]
+	~	Strength of spillover of contacts with similar platforms. Ranges from 0 \
+		(no spillover) to 1 (full spillover)
+	|
+
+Familiarity Forgetting ij[Technology,TechnologyTo]=
+	SW Forgetting*Linear Effect of Exposure on Forgetting ij[Technology,TechnologyTo]*Cumulative Familiarity ij\
+		[Technology,TechnologyTo]*Normal Forget Rate Phi
+	~	vehicles/year
+	~	Forgetting of familiarity of platform i with platform j per year.
+	|
+
+US Median Household Income=
+	40000
+	~	$/year
+	~	Income of the median household in the U.S.
+	|
+
+U1 j[TechnologyTo]=
+	((Effective Price j[TechnologyTo])/1000)/"Ln(Household Income)"*Purchase Price Weight
+	~	dmnl
+	~	Purchase price component of von Neumann-Morgenstern utility function
+	|
+
+Time to Install Infrastructure f[Infrastructure]=
+	2, 1
+	~	year
+	~	Time required to install a refueling station
+	|
+
+ELECTRIC Energy Efficiency=
+	0.32/33.4
+	~	GGE/miles
+	~	Energy efficiency of a vehicle of ELECTRIC platform
+	|
+
+U6 j[TechnologyTo]=
+	Emissions Fr Weight*Emissions Fr j[TechnologyTo]
+	~	dmnl
+	~	Emissions component of von Neumann-Morgenstern utility function
+	|
+
+Effect of Experience on Unit BATTERY Cost i[Technology]=
+	("Cumulative Experience - BATTERY i"[Technology]/Initial Experience BATTERY i[Technology\
+		])^-Experience Beta
+	~	dmnl
+	~	Effect of experience on BATTERY cost
+	|
+
+Effect of Experience on ELECTRIC Architecture Cost i[Technology]=
+	("Cumulative Experience - ELECTRIC Architecture i"[Technology]/Initial Experience ELECTRIC Architecture i\
+		[Technology])^-Experience Beta
+	~	dmnl
+	~	Effect of experience on ELECTRIC vehicle architecture cost
+	|
+
+"Cumulative Experience - Base Vehicle i"[Technology]= INTEG (
+	"Experience Gain - Base Vehicle i"[Technology],
+		Initial Experience Base Vehicle i[Technology])
+	~	vehicles
+	~	Cumulative experience with base vehicle architecture
+	|
+
+"Cumulative Experience - ELECTRIC Architecture i"[Technology]= INTEG (
+	"Experience Gain - ELECTRIC Architecture i"[Technology],
+		Initial Experience ELECTRIC Architecture i[Technology])
+	~	vehicles
+	~	Cumulative experience with ELECTRIC vehicle architecture
+	|
+
+Familiarity ij[Technology,TechnologyTo]=
+	IF THEN ELSE(SW Endogenous Familiarity=0,Exogenous Familiarity Value,Average Familiarity ij\
+		[Technology,TechnologyTo])
+	~	dmnl
+	~	Current level of familiarity of drivers of platform i with vehicles of \
+		platform j
+	|
+
+Probability of Contact with Drivers j[TechnologyTo]=
+	Installed Base i[TechnologyTo]/SUM(Installed Base i[TechnologyTo!])
+	~	dmnl
+	~	Probability of a random contact to be with the driver of the platform j
+	|
+
+Exposure from Drivers j[TechnologyTo]=
+	Effective Contact Rate Drivers*Probability of Contact with Drivers j[TechnologyTo]
+	~	dmnl/year
+	~	Effective strength of a contact with a driver of the platform j. Measures \
+		the effective rate of reducing the gap to full familiarity with platform j \
+		per year.
+	|
+
+Initial Experience ELECTRIC Architecture i[Technology]=
+	1e+06
+	~	vehicles
+	~	Initial experience with ELECTRIC vehicle architecture
+	|
+
+Initial Familiarity ij[Technology,TechnologyTo]=
+	IF THEN ELSE(Technology=CONVENTIONAL :AND: TechnologyTo=CONVENTIONAL, Initial Installed Base i\
+		[CONVENTIONAL] , 0)
+	~	vehicles
+	~	Initial level of familiarity of platform i with platform j. Assumed to be \
+		0 for all platforms, except for gasoline
+	|
+
+Annual Operating Emissions by Platform i[Technology]=
+	Annual Miles by Platform i[Technology]*Emissions per Mile i[Technology]
+	~	tonnes CO2e/year
+	~	Yearly tailpipe emissions of all vehicles of a platform, by platform
+	|
+
+Experience Beta=
+	-LOG(1-Learning Rate, 2)
+	~	dmnl
+	~	Experience learning curve strength
+	|
+
+SW Forgetting=
+	0
+	~	dmnl [0,1,1]
+	~	Switch to allow familiarity forgetting
+	|
+
+Epsilon=
+	20
+	~	year
+	~	Multiplier for the difference between actual and minimum rate of reduction \
+		of the gap to full familiarity. The value is chosen to generate at least 1 \
+		when the difference is 0.
+	|
+
+Initial BATTERY Cost i[CONVENTIONAL]=
+	0 ~~|
+Initial BATTERY Cost i[HYBRID]=
+	10000 ~~|
+Initial BATTERY Cost i[ELECTRIC]=
+	10000
+	~	$/GGE
+	~	Initial cost of BATTERY
+	|
+
+Effective Contact Rate Drivers= GAME (
+	0.06)
+	~	dmnl/year
+	~	Average strength of contacts with drivers to build the familiarity with \
+		the platform. Calculated as the rate of reducing the gap to full \
+		familiarity per year.
+	|
+
+Marketing Effectiveness=
+	1.5e-05
+	~	dmnl/million [0,0.0001,1e-05]
+	~	Effectiveness of advertising activities in reducing the gap to full \
+		familiarity with platform per million dollar spend.
+	|
+
+Initial Base Vehicle Cost i[Technology]=
+	15000
+	~	$/vehicles
+	~	Initial cost of base vehicle architecture
+	|
+
+SW Endogenous Familiarity=
+	1
+	~	dmnl [0,1,1]
+	~	Switch to use model structure to track famililarity
+	|
+
+Initial Experience BATTERY i[Technology]=
+	1e+07
+	~	GGE
+	~	Initial experience with BATTERY technology
+	|
+
+"GHG Emissions Factor - Gasoline"= GAME (
+	0.008887)
+	~	tonnes CO2e/gallon
+	~	Emissions factor of gasoline fuel
+		Gasoline has 8,887 grams CO2/gallon = 8.887 kg CO2/gallon = 0.008887 tonnes \
+		CO2/gallon.
+		http://www3.epa.gov/otaq/climate/documents/420f14040a.pdf
+	|
+
+Initial Experience Base Vehicle i[Technology]=
+	1e+09
+	~	vehicles
+	~	Initial experience with base vehicle architecture
+	|
+
+Social Exposure Offset EtaRef=
+	0.05
+	~	dmnl/year
+	~	Minimum required level of effective rate of gap reduction to full \
+		familiarity to offset forgetting
+	|
+
+Total Cumulative CO2 Emissions= INTEG (
+	Total Annual CO2 Emissions,
+		0)
+	~	tonnes CO2e
+	~	Cumulative emissions since the beginning of a simulation
+	~	:SUPPLEMENTARY 
+	|
+
+Affinity ij[Technology,TechnologyTo]=
+	Familiarity ij[Technology,TechnologyTo]*EXP Utility j[TechnologyTo]
+	~	dmnl
+	~	Combined efect of familiarity and consumer utility reflecting the \
+		propensity of drivers of platform i to purchase platform j
+	|
+
+Learning Rate= GAME (
+	0.05)
+	~	dmnl [0,1,0.05]
+	~	Technology learning curve rate. Indicates fractional decrease in principal \
+		variable with every doubling of experience
+	|
+
+Ln Units Correction=
+	1
+	~	$/year
+	~	Dummy variable for LN unit correction
+	|
+
+ELECTRIC Introduction Date=
+	100
+	~	year [?,?,5]
+	~	Introduction year of the ELECTRIC platform
+	|
+
+Initial ELECTRIC FE= GAME (
+	100)
+	~	miles/GGE
+	~	Initial fuel efficiency of a vehicle of ELECTRIC platform
+	|
+
+HYBRID Introduction Date=
+	100
+	~	year [?,?,5]
+	~	Introduction year of the hybrid platform
+	|
+
+Initial HYBRID FE=
+	40
+	~	miles/gallon
+	~	Initial fuel efficiency of a vehicle of hybrid platform
+	|
+
+HYBRID Tank=
+	12
+	~	gallon/vehicles
+	~	Capacity of gasoline tank of a vehicle of hybrid platform
+	|
+
+SW Endogenous Infrastructure=
+	1
+	~	dmnl [0,1,1]
+	~	Switch to use structure of co-evolution of refueling stations in the model
+	|
+
+Markup= GAME (
+	0.1)
+	~	dmnl
+	~	OEM manufacturer margin
+	|
+
+Initial GAS FE=
+	20
+	~	miles/gallon
+	~	Initial fuel efficiency of a vehicle of gasoline platform
+	|
+
+GAS Tank=
+	17
+	~	gallon/vehicles
+	~	Capacity of gasoline tank of a vehicle of gasoline platform
+	|
+
+HYBRID Storage=
+	1/33.4
+	~	GGE/vehicles
+	~	ELECTRIC energy storage of a vehicle of hybrid platform
+	|
+
+SW Learning=
+	1
+	~	dmnl [0,1,1]
+	~	Switch to allow learning curve effect from experience and R&D
+	|
+
+GAS Introduction Date= GAME (
+	0)
+	~	year [?,?,1]
+	~	Introduction year of the gasoline platform
+	|
+
+SW Familiarity Spillovers=
+	1
+	~	dmnl [0,1,1]
+	~	Switch to allow familiarity spillover
+	|
+
+Acceleration Weight= GAME (
+	-0.149)
+	~	dmnl/seconds
+	~	Weight of the acceleration in the consumer utility
+	|
+
+Emissions Fr Weight= GAME (
+	-0.673)
+	~	dmnl
+	~	Weight of the emissions in the consumer utility
+	|
+
+Exogenous Familiarity Value=
+	1
+	~	dmnl [0,1,0.1]
+	~	Default value of the familiarity (1 means full familiarity)
+	|
+
+Operating Cost Weight= GAME (
+	-0.17)
+	~	dmnl/(cents/miles)
+	~	Weight of the operating cost in the consumer utility
+	|
+
+Purchase Price Weight= GAME (
+	-0.361)
+	~	dmnl/$*vehicles
+	~	Weight of the purchase price in the consumer utility
+	|
+
+Technology:
+	CONVENTIONAL, HYBRID, ELECTRIC
+	~	
+	~		|
+
+TechnologyTo:
+	CONVENTIONAL, HYBRID,ELECTRIC
+	~	
+	~		|
+
+TechnologySpill:
+	CONVENTIONAL, HYBRID, ELECTRIC
+	~	
+	~		|
+
+********************************************************
+	.Control
+********************************************************~
+		Simulation Control Parameters
+	|
+
+FINAL TIME  = 30
+	~	year
+	~	The final time for the simulation.
+	|
+
+INITIAL TIME  = 0
+	~	year
+	~	The initial time for the simulation.
+	|
+
+SAVEPER  = 
+        TIME STEP
+	~	year [0,?]
+	~	The frequency with which output is stored.
+	|
+
+TIME STEP  = 0.03125
+	~	year [0,?]
+	~	The time step for the simulation.
+	|
+
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*DASHBOARD
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,50,0
+12,1,3611276,1165,419,360,329,3,188,0,0,1,0,0,0
+Fleet_Installed_Base
+12,2,2038866,409,419,360,329,3,188,0,0,1,0,0,0
+Fleet_Sales
+12,3,2235932,1928,419,356,330,3,188,0,0,1,0,0,0
+Pump_Utilization
+12,4,5051402,409,1118,360,329,3,188,0,0,1,0,0,0
+Consideration
+12,5,4005024,1165,1118,360,329,3,188,0,0,1,0,0,0
+Refueling_Stations
+10,6,Sensitivity Effect Alpha,1635,1319,61,24,8,3,0,0,0,0,0,0
+10,7,SW Improving FE,2241,1204,68,24,8,3,0,2,-1,0,0,0,128-128-128,0-0-0,|12||255-0-255
+10,8,stations incentives,1948,965,58,24,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,9,stations incentives DURATION,1958,993,63,35,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,10,stations incentives START,1948,965,96,24,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,11,extra stations,2241,965,46,24,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,12,extra stations DURATION,2241,965,74,24,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,13,extra stations START,2241,965,74,24,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,14,Manufacturer Vehicle Subsidy,1948,1164,88,24,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,15,Manufacturer Vehicle Subsidy DURATION,1948,1164,81,35,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,16,Manufacturer Vehicle Subsidy START,1948,1164,81,35,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,17,marketing spending,2133,1164,56,24,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,18,marketing spending DURATION,2133,1164,63,35,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,19,marketing spending START,2241,1164,91,24,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,20,stations incentives,1631,889,53,24,8,3,0,0,-1,0,0,0
+10,21,stations incentives DURATION,2014,889,56,35,8,3,0,0,-1,0,0,0
+10,22,stations incentives START,1811,889,90,24,8,3,0,0,-1,0,0,0
+10,23,extra stations,1631,993,68,14,8,3,0,0,-1,0,0,0
+10,24,extra stations DURATION,2014,1000,69,24,8,3,0,0,-1,0,0,0
+10,25,extra stations START,1811,989,69,24,8,3,0,0,-1,0,0,0
+10,26,Manufacturer Vehicle Subsidy,1631,1096,81,24,8,3,0,0,-1,0,0,0
+10,27,Manufacturer Vehicle Subsidy DURATION,2014,1100,106,24,8,3,0,0,-1,0,0,0
+10,28,Manufacturer Vehicle Subsidy START,1811,1100,81,35,8,3,0,0,-1,0,0,0
+10,29,marketing spending,1631,1213,51,24,8,3,0,0,-1,0,0,0
+10,30,marketing spending DURATION,2014,1213,56,35,8,3,0,0,-1,0,0,0
+10,31,marketing spending START,1811,1213,86,24,8,3,0,0,-1,0,0,0
+10,32,SW Learning,2241,998,65,14,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-255
+10,33,SW Endogenous Infrastructure,2241,1056,85,24,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12|B|255-0-255
+10,34,SW Familiarity Spillovers,2241,941,74,24,8,3,0,2,0,0,0,0,-1--1--1,0-0-0,|12||255-0-255
+10,35,SW Endogenous Familiarity,2241,873,85,24,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12|B|255-0-255
+10,36,SW Forgetting,2241,1116,71,14,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-255
+10,37,MSRP j,1626,1380,49,14,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,38,Vehicle Incentives j,1626,1380,63,24,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,39,SW Learning Spillovers from Leading Platform Only,2241,1300,118,35,8,3,0,2,-1,0,0,0,128-128-128,0-0-0,|12||255-0-255
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*INPUT ASSUMPTIONS
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+10,1,Learning Rate,631,360,70,14,8,131,0,0,0,0,0,0
+10,2,"GHG Emissions Factor - Gasoline",1068,351,81,31,8,131,0,0,0,0,0,0
+10,3,Epsilon,433,575,36,14,8,3,0,0,0,0,0,0
+10,4,Social Exposure Offset EtaRef,433,645,83,24,8,131,0,0,0,0,0,0
+10,5,Markup,853,271,36,14,8,3,0,0,0,0,0,0
+10,6,Initial Base Vehicle Cost i,853,320,80,26,8,131,0,0,0,0,0,0
+10,7,Initial Experience Base Vehicle i,631,419,84,31,8,131,0,0,0,0,0,0
+10,8,Initial ELECTRIC Architecture Cost i,853,390,98,24,8,131,0,0,0,0,0,0
+10,9,Initial Experience ELECTRIC Architecture i,631,495,86,35,8,131,0,0,0,0,0,0
+10,10,Initial BATTERY Cost i,853,456,84,24,8,131,0,0,0,0,0,0
+10,11,Initial Experience BATTERY i,631,564,101,24,8,131,0,0,0,0,0,0
+10,12,Initial Infrastructure Availability f,853,766,74,35,8,131,0,0,0,0,0,0
+10,13,Time to Install Infrastructure f,853,686,89,24,8,131,0,0,0,0,0,0
+10,14,US Median Household Income,230,680,95,24,8,3,0,0,0,0,0,0
+10,15,Normal Forget Rate Phi,433,510,74,24,8,3,0,0,0,0,0,0
+10,16,Infrastructure Life f,853,845,69,24,8,3,0,0,-1,0,0,0
+10,17,Light Vehicle Market Size j,230,291,66,24,8,3,0,0,0,0,0,0
+10,18,Vehicle Lifetime,230,355,80,14,8,3,0,0,0,0,0,0
+10,19,Marketing Effectiveness,433,290,69,24,8,3,0,0,0,0,0,0
+10,20,Effective Contact Rate Drivers,433,361,86,24,8,3,0,0,0,0,0,0
+12,21,0,631,305,70,14,8,7,0,16,-1,0,0,0,-1--1--1,0-0-0,|12|BU|0-0-0
+OEM Learning
+12,22,0,1068,241,75,35,8,7,0,16,-1,0,0,0,-1--1--1,0-0-0,|12|BU|0-0-0
+Emissions and Energy Price Accounting
+12,23,0,853,631,69,14,8,7,0,16,-1,0,0,0,-1--1--1,0-0-0,|12|BU|0-0-0
+Infrastructure
+12,24,0,433,225,54,14,8,7,0,16,-1,0,0,0,-1--1--1,0-0-0,|12|BU|0-0-0
+Familiarity
+12,25,0,230,610,74,14,8,7,0,16,-1,0,0,0,-1--1--1,0-0-0,|12|BU|0-0-0
+Demographics
+12,26,0,230,226,65,14,8,7,0,16,-1,0,0,0,-1--1--1,0-0-0,|12|BU|0-0-0
+Vehicle Fleet
+10,27,Initial Experience IC Engine i,631,625,89,24,8,3,0,0,0,0,0,0
+10,28,Initial IC Engine Cost i,853,521,69,24,8,3,0,0,0,0,0,0
+10,29,Extent of Platform Learning Spillovers,433,741,94,35,8,131,0,0,0,0,0,0
+10,30,Value of Time,230,745,69,14,8,3,0,0,0,0,0,0
+10,31,Average Speed,230,460,75,14,8,3,0,0,0,0,0,0
+10,32,Initial Infrastructure in Construction f,853,911,99,24,8,3,0,0,0,0,0,0
+10,33,Incentive Value j,230,516,81,14,8,3,0,0,0,0,0,0
+10,34,SW Learning,1068,676,65,14,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-255
+10,35,SW Endogenous Infrastructure,1068,735,85,24,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12|B|255-0-255
+10,36,SW Familiarity Spillovers,1068,620,74,24,8,3,0,2,0,0,0,0,-1--1--1,0-0-0,|12||255-0-255
+10,37,SW Endogenous Familiarity,1068,551,85,24,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12|B|255-0-255
+10,38,SW Forgetting,1068,795,71,14,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-255
+12,39,0,628,221,50,14,8,7,0,16,-1,0,0,0,-1--1--1,0-0-0,|12|BU|0-0-0
+OEM R&D
+12,40,0,853,225,50,14,8,7,0,16,-1,0,0,0,-1--1--1,0-0-0,|12|BU|0-0-0
+OEM Cost
+10,41,"GHG Emissions Factor - ELECTRICITY",1068,441,94,35,8,131,0,0,0,0,0,0
+10,42,VMT per Year i,230,406,71,14,8,3,0,2,0,0,0,0,-1--1--1,0-0-0,|12|B|255-128-0
+10,43,GAS Introduction Date,1270,336,89,24,8,131,0,0,0,0,0,0
+10,44,HYBRID Introduction Date,1483,335,81,31,8,131,0,0,0,0,0,0
+10,45,ELECTRIC Introduction Date,1715,316,81,31,8,131,0,2,0,0,0,0,-1--1--1,0-0-0,|12|B|255-128-0
+10,46,GAS Tank,1270,405,49,14,8,3,0,0,0,0,0,0
+10,47,HYBRID Tank,1483,405,69,14,8,3,0,0,0,0,0,0
+10,48,Initial GAS FE,1270,460,70,14,8,3,0,0,0,0,0,0
+10,49,Initial HYBRID FE,1483,470,74,24,8,131,0,0,0,0,0,0
+10,50,Initial ELECTRIC FE,1715,395,91,24,8,131,0,0,0,0,0,0
+10,51,HYBRID Storage,1483,541,41,24,8,3,0,0,0,0,0,0
+10,52,ELECTRIC Range,1715,466,75,24,8,3,0,0,0,0,0,0
+10,53,ELECTRIC Energy Efficiency,1715,536,89,24,8,3,0,0,0,0,0,0
+12,54,0,1270,241,91,35,8,7,0,16,-1,0,0,0,-1--1--1,0-0-0,|12|BU|0-0-0
+Conventional Gasoline (CONVENTIONAL)
+12,55,0,1483,231,81,24,8,7,0,16,-1,0,0,0,-1--1--1,0-0-0,|12|BU|0-0-0
+Gasoline Hybrid (HYBRID)
+12,56,0,1715,231,69,24,8,7,0,16,-1,0,0,0,-1--1--1,0-0-0,|12|BU|0-0-0
+ELECTRIC Vehicle
+10,57,ELECTRIC Acceleration,1715,610,75,24,8,131,0,0,0,0,0,0
+10,58,GAS Acceleration,1270,525,71,21,8,131,0,0,0,0,0,0
+10,59,HYBRID Acceleration,1483,615,76,21,8,131,0,0,0,0,0,0
+10,60,GAS Top Speed,1270,601,51,26,8,131,0,0,0,0,0,0
+10,61,HYBRID Top Speed,1483,690,56,26,8,131,0,0,0,0,0,0
+10,62,ELECTRIC Top Speed,1715,685,75,24,8,131,0,0,0,0,0,0
+10,63,Combined effect f,853,960,59,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,64,63,32,0,0,0,0,0,64,1,-1--1--1,,1|(853,944)|
+1,65,16,32,0,0,0,0,0,64,1,-1--1--1,,1|(853,869)|
+1,66,12,32,0,0,0,0,0,64,1,-1--1--1,,1|(853,835)|
+1,67,13,32,0,0,0,0,0,64,1,-1--1--1,,1|(853,790)|
+10,68,Exogenous Familiarity Value,433,828,84,24,8,131,0,0,0,0,0,0
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Accounting - Fuel Price
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+10,1,Retail Fuel Price r,1288,1014,54,24,8,3,0,2,0,0,0,0,-1--1--1,0-0-0,|12|B|255-128-0
+10,2,Native units to GGE ELECTRICITY,1131,681,99,24,8,131,0,0,0,0,0,0
+10,3,Fuel Price r,1026,803,65,14,8,131,0,0,0,0,0,0
+1,4,3,1,0,0,43,0,2,192,0,-1--1--1,|12||0-0-0,1|(1143,898)|
+1,5,2,3,1,0,0,0,0,64,0,-1--1--1,,1|(1081,728)|
+10,6,GHG Emissions Factor r,1688,671,109,40,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,7,Carbon Tax r,1543,811,65,14,8,3,0,0,0,0,0,0
+10,8,Native units to GGE Gasoline,938,684,74,24,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||0-128-0
+1,9,8,3,0,0,0,0,0,64,0,-1--1--1,,1|(979,740)|
+1,10,30,3,0,0,0,0,0,64,0,-1--1--1,,1|(884,741)|
+1,11,16,3,0,0,0,0,0,64,0,-1--1--1,,1|(884,863)|
+1,12,6,7,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1608,748)|
+10,13,Current Carbon Price,1451,673,71,39,8,131,0,2,-1,0,0,0,-1--1--1,0-0-0,|12|B|255-128-0
+1,14,13,7,0,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1499,746)|
+1,15,7,1,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1428,901)|
+10,16,Gasoline Price,721,934,70,34,3,131,0,0,0,0,0,0
+12,17,48,441,934,13,10,0,3,0,0,-1,0,0,0
+1,18,20,16,4,0,0,22,0,0,0,-1--1--1,,1|(605,934)|
+1,19,20,17,100,0,0,22,0,0,0,-1--1--1,,1|(498,934)|
+11,20,48,551,934,9,10,34,3,0,0,1,0,0,0
+10,21,Gasoline Price Rate,551,968,74,24,40,3,0,0,-1,0,0,0
+10,22,FINAL TIME,521,1049,70,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,23,Initial Price Gasoline,730,1058,66,25,8,131,0,0,0,0,0,0
+1,24,23,16,0,0,0,0,0,64,1,-1--1--1,,1|(726,1008)|
+1,25,23,21,0,0,0,0,0,64,0,-1--1--1,,1|(646,1015)|
+10,26,Total Simulation Price Change Rate GASOLINE,295,1039,109,35,8,131,0,2,0,0,0,0,-1--1--1,0-0-0,|12|B|255-128-0
+1,27,26,21,0,0,0,0,0,64,0,-1--1--1,,1|(431,1000)|
+1,28,22,21,0,0,0,0,0,64,0,-1--1--1,,1|(530,1021)|
+10,29,Total Simulation Price Change Rate ELECTRICITY,295,786,109,35,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12|B|255-128-0
+10,30,ELECTRICITY Price,721,671,70,34,3,131,0,0,0,0,0,0
+12,31,48,441,671,13,10,0,3,0,0,-1,0,0,0
+1,32,34,30,4,0,0,22,0,0,0,-1--1--1,,1|(605,671)|
+1,33,34,31,100,0,0,22,0,0,0,-1--1--1,,1|(498,671)|
+11,34,48,551,671,9,10,34,3,0,0,1,0,0,0
+10,35,ELECTRICITY Price Rate,551,704,79,24,40,3,0,0,-1,0,0,0
+1,36,29,35,0,0,0,0,0,64,0,-1--1--1,,1|(430,741)|
+10,37,FINAL TIME,521,796,70,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,38,37,35,0,0,0,0,0,64,0,-1--1--1,,1|(530,763)|
+10,39,Initial Price ELECTRICITY,708,799,79,24,8,3,0,0,0,0,0,0
+1,40,39,35,0,0,0,0,0,64,0,-1--1--1,,1|(636,755)|
+1,41,39,30,0,0,0,0,0,64,1,-1--1--1,,1|(713,748)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Accounting - Greenhouse Gas Emissions
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+10,1,Installed Base i,1301,965,75,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,2,Annual Miles by Platform i,1421,869,75,24,8,3,0,0,0,0,0,0
+1,3,1,2,0,0,0,0,0,64,0,-1--1--1,,1|(1351,924)|
+10,4,Annual Operating Emissions by Platform i,1466,755,90,35,8,131,0,0,0,0,0,0
+1,5,2,4,0,0,0,0,0,64,0,-1--1--1,,1|(1435,829)|
+10,6,Total Cumulative CO2 Emissions,1921,894,85,30,3,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-0
+12,7,48,1579,894,16,14,0,3,0,0,-1,0,0,0
+1,8,10,6,4,0,0,22,0,0,0,-1--1--1,,1|(1764,894)|
+1,9,10,7,100,0,0,22,0,0,0,-1--1--1,,1|(1634,894)|
+11,10,48,1681,894,10,14,34,3,0,0,1,0,0,0
+10,11,Total Annual CO2 Emissions,1681,930,89,24,40,131,0,0,-1,0,0,0
+10,12,Emissions per Mile i,1251,776,60,31,8,131,0,0,0,0,0,0
+1,13,12,4,0,0,0,0,0,64,0,-1--1--1,,1|(1331,769)|
+10,14,Emissions per Mile Gasoline i,986,714,75,24,8,131,0,0,0,0,0,0
+1,15,14,12,0,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1115,741)|
+10,16,FE of New Vehicles by Platform j,311,550,59,35,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,17,VMT per Year i,1471,980,84,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||255-128-0
+1,18,17,2,0,0,0,0,0,64,0,-1--1--1,,1|(1454,939)|
+10,19,Emissions per Mile j,285,776,76,24,8,131,0,0,0,0,0,0
+10,20,Annual Manufacturing Emissions by Platform i,1675,690,111,35,8,3,0,0,0,0,0,0
+10,21,Annual Recycling and Disposal Emissions by Platform i,1890,776,115,35,8,3,0,0,0,0,0,0
+10,22,Vehicle Manufacturing i,1561,586,79,24,8,3,0,0,0,0,0,0
+10,23,BATTERY Manufacturing i,1770,586,96,24,8,3,0,0,0,0,0,0
+10,24,GHG Emissions per Vehicle Manufactured,1401,489,109,24,8,3,0,0,0,0,0,0
+10,25,Order Fulfillment j,1646,489,66,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,26,24,22,0,0,0,0,0,64,0,-1--1--1,,1|(1470,530)|
+1,27,25,22,0,0,0,0,0,64,0,-1--1--1,,1|(1611,529)|
+1,28,25,23,0,0,0,0,0,64,0,-1--1--1,,1|(1699,530)|
+10,29,BATTERY i,1821,489,60,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+1,30,29,23,0,0,0,0,0,64,0,-1--1--1,,1|(1800,526)|
+10,31,GHG Emissions per Unit BATTERY Manufactured,2016,489,121,35,8,3,0,0,0,0,0,0
+1,32,31,23,0,0,0,0,0,64,0,-1--1--1,,1|(1890,539)|
+1,33,22,20,0,0,0,0,0,64,0,-1--1--1,,1|(1601,624)|
+1,34,23,20,0,0,0,0,0,64,0,-1--1--1,,1|(1735,624)|
+10,35,Order Fulfillment j,1860,681,66,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,36,GHG Emissions per Vehicle Retired,2041,671,95,24,8,3,0,0,0,0,0,0
+1,37,35,21,0,0,0,0,0,64,0,-1--1--1,,1|(1869,711)|
+1,38,36,21,0,0,0,0,0,64,0,-1--1--1,,1|(1984,711)|
+10,39,Annual Emissions by Platform i,1675,820,91,24,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-0
+1,40,4,39,0,0,0,0,0,64,0,-1--1--1,,1|(1566,785)|
+1,41,20,39,0,0,0,0,0,64,0,-1--1--1,,1|(1675,749)|
+1,42,21,39,0,0,0,0,0,64,0,-1--1--1,,1|(1781,796)|
+1,43,39,10,0,0,0,0,0,64,0,-1--1--1,,1|(1676,851)|
+10,44,VMT SW i,1240,885,59,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,45,44,2,0,0,0,0,0,64,0,-1--1--1,,1|(1310,879)|
+10,46,Average FE by Platform i,1175,550,80,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,47,46,14,0,0,0,0,0,64,0,-1--1--1,,1|(1089,624)|
+10,48,Emissions per Mile of HYBRID i,985,780,81,24,8,3,0,0,0,0,0,0
+1,49,46,48,0,0,0,0,0,64,0,-1--1--1,,1|(1086,655)|
+1,50,48,12,0,0,0,0,0,64,0,-1--1--1,,1|(1116,779)|
+10,51,Emissions per Mile Gasoline j,521,714,74,24,8,3,0,0,0,0,0,0
+10,52,Emissions per Mile HYBRID j,520,780,74,24,8,3,0,0,0,0,0,0
+1,53,16,52,0,0,0,0,0,64,0,-1--1--1,,1|(411,661)|
+1,54,16,51,0,0,0,0,0,64,0,-1--1--1,,1|(414,630)|
+1,55,51,19,0,0,0,0,0,64,0,-1--1--1,,1|(415,740)|
+1,56,52,19,0,0,0,0,0,64,0,-1--1--1,,1|(415,779)|
+10,57,Emissions per Mile ELECTRIC i,985,646,94,24,8,3,0,0,0,0,0,0
+10,58,Emissions per Mile of ELECTRIC j,521,646,94,24,8,3,0,0,0,0,0,0
+1,59,58,19,0,0,0,0,0,64,0,-1--1--1,,1|(414,705)|
+10,60,GHG Emissions Factor r,750,731,80,24,8,3,0,0,-1,0,0,0
+1,61,60,51,0,0,0,0,0,64,0,-1--1--1,,1|(644,724)|
+1,62,60,52,0,0,0,0,0,64,0,-1--1--1,,1|(641,754)|
+1,63,60,48,0,0,0,0,0,64,0,-1--1--1,,1|(855,751)|
+1,64,60,14,0,0,0,0,0,64,0,-1--1--1,,1|(859,724)|
+1,65,60,58,0,0,0,0,0,64,0,-1--1--1,,1|(646,691)|
+1,66,16,58,0,0,0,0,0,64,0,-1--1--1,,1|(409,595)|
+1,67,46,57,0,0,0,0,0,64,0,-1--1--1,,1|(1090,591)|
+1,68,60,57,0,0,0,0,0,64,0,-1--1--1,,1|(855,691)|
+1,69,57,12,0,0,0,0,0,64,0,-1--1--1,,1|(1100,701)|
+10,70,"GHG Emissions Factor - ELECTRICITY",1050,934,94,35,8,130,0,3,0,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,71,"GHG Emissions Factor - Gasoline",386,934,91,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,72,Native units to GGE ELECTRICITY,1050,1085,80,35,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,73,Native units to GGE Gasoline,386,1085,79,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,74,GHG Emissions Factor GAS GGE,610,1015,84,24,8,3,0,0,0,0,0,0
+10,75,GHG Emissions Factor ELECTRIC GGE,841,1015,100,35,8,131,0,0,0,0,0,0
+1,76,71,74,0,0,0,0,0,64,0,-1--1--1,,1|(485,970)|
+1,77,73,74,0,0,0,0,0,64,0,-1--1--1,,1|(485,1054)|
+1,78,72,75,0,0,0,0,0,64,0,-1--1--1,,1|(966,1056)|
+1,79,70,75,0,0,0,0,0,64,0,-1--1--1,,1|(956,970)|
+1,80,75,60,0,0,0,0,0,0,0,-1--1--1,,1|(796,879)|
+1,81,74,60,0,0,0,0,0,0,0,-1--1--1,,1|(674,884)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Accounting - Vehicle Price
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+10,1,Vehicle Incentives j,730,911,71,34,8,131,0,0,0,0,0,0
+10,2,Incentive Value j,810,790,94,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,3,2,1,0,0,0,0,0,64,0,-1--1--1,,1|(780,833)|
+10,4,OEM Revenue i,1215,1031,76,14,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-0
+10,5,Order Fulfillment j,1344,903,66,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,6,5,4,0,0,0,0,0,64,0,-1--1--1,,1|(1280,965)|
+10,7,Effective Price j,884,1028,79,14,8,3,0,50,0,0,0,0,0-0-0,0-0-0,Arial|12|B|255-128-0
+10,8,Vehicle Cost i,646,615,59,24,8,131,0,2,0,0,0,0,-1--1--1,0-0-0,|12||0-0-255
+10,9,Base Vehicle Cost i,321,433,71,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,10,IC Engine Cost i,505,430,91,14,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,11,BATTERY i,1046,181,60,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,12,Markup,988,655,51,14,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,13,ELECTRIC Architecture Cost i,716,438,90,35,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,14,Unit BATTERY Cost i,801,185,84,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|255-128-0
+1,15,9,8,0,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(475,519)|
+1,16,10,8,0,0,43,0,2,192,0,-1--1--1,|12||0-0-0,1|(565,510)|
+1,17,13,8,0,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(681,523)|
+10,18,BATTERY Cost i,959,313,71,24,8,3,0,0,0,0,0,0
+1,19,11,18,0,0,43,0,2,192,0,-1--1--1,|12||0-0-0,1|(1006,239)|
+1,20,14,18,0,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(873,243)|
+10,21,Energy Storage i,925,433,84,14,8,3,0,0,0,0,0,0
+1,22,18,21,0,0,0,0,0,64,0,-1--1--1,,1|(943,369)|
+1,23,21,8,0,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(800,514)|
+10,24,Manufacturer Subsidy i,1211,616,75,24,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-0
+10,25,MSRP j,1075,785,69,14,8,3,0,0,0,0,0,0
+1,26,12,25,0,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1025,713)|
+1,27,24,25,0,0,45,0,2,64,0,-1--1--1,|12||0-0-0,1|(1144,699)|
+1,28,25,4,0,0,0,0,0,64,0,-1--1--1,,1|(1140,900)|
+10,29,Platform Introduced j,619,788,66,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,30,29,1,0,0,0,0,0,64,0,-1--1--1,,1|(663,838)|
+1,31,8,25,0,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(863,700)|
+1,32,25,7,0,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(984,899)|
+1,33,1,7,0,0,45,0,2,64,0,-1--1--1,|12||0-0-0,1|(811,974)|
+10,34,Subsidy Phase In and Out time,1375,740,89,24,8,3,0,0,0,0,0,0
+1,35,34,25,0,0,0,0,0,64,0,-1--1--1,,1|(1223,761)|
+10,36,Manufacturer Vehicle Subsidy,1113,510,81,24,8,3,0,0,-1,0,0,0
+1,37,36,24,0,0,0,0,0,64,0,-1--1--1,,1|(1155,556)|
+10,38,Manufacturer Vehicle Subsidy DURATION,1454,571,106,24,8,3,0,0,-1,0,0,0
+1,39,38,24,0,0,0,0,0,64,0,-1--1--1,,1|(1325,594)|
+10,40,Manufacturer Vehicle Subsidy START,1305,469,81,35,8,3,0,0,-1,0,0,0
+1,41,40,24,0,0,0,0,0,64,0,-1--1--1,,1|(1259,540)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Discrete Choice - Market Share
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+10,1,Affinity ij,1023,598,50,14,8,131,0,0,0,0,0,0
+10,2,EXP Utility j,1254,479,60,14,8,131,0,2,0,0,0,0,-1--1--1,0-0-0,|12|B|0-0-255
+1,3,2,1,0,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1145,534)|
+10,4,Utility j,1368,319,45,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,5,4,2,0,0,43,0,2,192,0,-1--1--1,|12||0-0-0,1|(1315,391)|
+10,6,Familiarity ij,820,461,66,14,8,131,0,0,0,0,0,0
+1,7,6,1,0,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(913,524)|
+10,8,Share ij,1034,1021,40,14,8,3,0,0,0,0,0,0
+10,9,Time,1244,314,36,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,10,9,2,0,0,0,0,0,64,0,-1--1--1,,1|(1248,388)|
+10,11,SW Endogenous Familiarity,650,379,91,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+1,12,11,6,0,0,0,0,0,64,0,-1--1--1,,1|(736,420)|
+10,13,Average Familiarity ij,920,369,74,26,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,14,13,6,0,0,0,0,0,64,0,-1--1--1,,1|(869,415)|
+10,15,Gasoline Share i,794,855,45,24,8,3,0,0,0,0,0,0
+10,16,Logit Denominator i,1025,733,71,24,8,3,0,0,0,0,0,0
+10,17,Hybrid Share i,1033,855,70,14,8,131,0,0,0,0,0,0
+1,18,17,8,0,0,0,0,0,64,0,-1--1--1,,1|(1033,929)|
+1,19,15,8,1,0,0,0,0,64,0,-1--1--1,,1|(903,965)|
+1,20,1,17,1,0,0,0,0,64,0,-1--1--1,,1|(958,801)|
+10,21,ELECTRIC Share i,1280,855,61,24,8,131,0,0,0,0,0,0
+1,22,21,8,1,0,0,0,0,64,0,-1--1--1,,1|(1165,971)|
+10,23,Logit Choice Scaling,1468,424,65,24,8,3,0,0,-1,0,0,0
+1,24,23,2,0,0,0,0,0,64,0,-1--1--1,,1|(1363,450)|
+1,25,1,16,0,0,0,0,0,64,0,-1--1--1,,1|(1023,651)|
+10,26,Platform Introduction Date j,1124,376,106,31,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,27,26,2,0,0,0,0,0,64,0,-1--1--1,,1|(1191,430)|
+10,28,Exogenous Familiarity Value,765,306,90,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,29,28,6,0,0,0,0,0,64,0,-1--1--1,,1|(790,380)|
+1,30,16,21,0,0,0,0,0,64,0,-1--1--1,,1|(1144,789)|
+1,31,16,17,0,0,0,0,0,64,0,-1--1--1,,1|(1028,790)|
+1,32,16,15,0,0,0,0,0,64,0,-1--1--1,,1|(916,789)|
+1,33,1,15,1,0,0,0,0,64,0,-1--1--1,,1|(839,693)|
+1,34,1,21,1,0,0,0,0,64,0,-1--1--1,,1|(1179,658)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Discrete Choice - Utility
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,76,0
+10,1,U2 j,591,630,21,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,2,U1 j,339,630,21,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,3,U6 j,1601,630,21,14,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,4,Operating Cost Weight,488,610,76,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,5,4,1,0,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(558,623)|
+10,6,Emissions Fr Weight,1484,610,66,24,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,7,6,3,0,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(1556,621)|
+10,8,U3 j,844,630,21,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,9,Acceleration Weight,721,610,64,24,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,10,9,8,0,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(795,621)|
+10,11,"Ln(Household Income)",226,510,74,24,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,12,11,2,0,0,45,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(280,568)|
+10,13,Ln Units Correction,344,379,54,24,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,14,13,11,0,0,0,0,0,64,0,-1--1--1,,1|(290,438)|
+10,15,Emissions Fr j,1608,510,70,14,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,16,15,3,0,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(1604,561)|
+10,17,Effective Price j,383,510,50,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,18,17,2,0,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(361,566)|
+10,19,US Median Household Income,183,379,101,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,20,19,11,0,0,0,0,0,64,0,-1--1--1,,1|(200,435)|
+10,21,Acceleration by Platform j,844,516,84,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,22,21,8,0,0,0,0,0,64,0,-1--1--1,,1|(844,569)|
+10,23,Emissions per Mile j,1609,376,79,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,24,23,15,0,0,0,0,0,64,0,-1--1--1,,1|(1608,439)|
+10,25,U7 j,1854,630,21,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,26,VMT per Year i,1758,376,49,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|255-128-0
+10,27,Fuel Search Cost j,1818,509,60,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,28,26,27,0,0,0,0,0,64,0,-1--1--1,,1|(1783,434)|
+1,29,27,25,0,0,0,0,0,64,0,-1--1--1,,1|(1833,565)|
+10,30,Top Speed Weight,983,610,55,24,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,31,U4 j,1096,630,21,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,32,Top Speed by Platform j,1060,513,76,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,33,30,31,0,0,0,0,0,64,0,-1--1--1,,1|(1048,620)|
+1,34,32,31,0,0,0,0,0,64,0,-1--1--1,,1|(1075,568)|
+10,35,SW Endogenous Infrastructure,2036,509,91,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,36,35,25,0,0,0,0,0,64,0,-1--1--1,,1|(1944,569)|
+10,37,U8 j,2110,630,21,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,38,Reference Deliveries,2220,376,54,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,39,Delivery Fraction of Scope Threshold j,2254,509,99,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,40,38,39,0,0,0,0,0,64,0,-1--1--1,,1|(2234,434)|
+10,41,Scope Weight,2005,610,69,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,42,Sensitivity,2443,509,54,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,43,39,37,0,0,0,0,0,64,0,-1--1--1,,1|(2183,569)|
+1,44,41,37,0,0,0,0,0,64,0,-1--1--1,,1|(2073,621)|
+1,45,42,37,0,0,0,0,0,64,0,-1--1--1,,1|(2276,569)|
+10,46,Cumulative Order Fulfillment j,2409,376,116,25,8,130,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,47,46,39,0,0,0,0,0,64,0,-1--1--1,,1|(2336,436)|
+10,48,Vehicle Operating Cost i,556,379,81,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,49,VMT SW i,2061,449,59,14,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,50,49,27,0,0,0,0,0,64,0,-1--1--1,,1|(1950,475)|
+10,51,Retail Fuel Price r,663,230,59,24,8,130,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|255-128-0
+1,52,51,48,0,0,0,0,0,64,0,-1--1--1,,1|(614,296)|
+10,53,Vehicle Operating Cost in Cents i,590,510,89,24,8,3,0,50,0,0,0,0,0-0-0,0-0-0,Arial|12|B|255-128-0
+1,54,48,53,0,0,0,0,0,64,0,-1--1--1,,1|(570,435)|
+1,55,53,1,0,0,0,0,0,64,0,-1--1--1,,1|(590,566)|
+10,56,Full Refueling Cost i,2031,376,75,24,8,130,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,57,56,27,0,0,0,0,0,64,0,-1--1--1,,1|(1931,438)|
+10,58,U5 j,1349,630,21,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,59,Range A,1149,230,44,14,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,60,59,58,0,0,0,0,0,64,0,-1--1--1,,1|(1244,421)|
+10,61,Range B,993,230,44,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,62,61,58,0,0,0,0,0,64,0,-1--1--1,,1|(1164,423)|
+10,63,Vehicle range j,1428,510,74,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,64,63,58,0,0,0,0,0,64,0,-1--1--1,,1|(1393,563)|
+10,65,Max Utility from Range,990,376,78,24,8,3,0,0,-1,0,0,0
+1,66,65,58,0,0,0,0,0,64,0,-1--1--1,,1|(1168,503)|
+10,67,Range at Peak Utility,1150,376,73,24,8,3,0,0,-1,0,0,0
+1,68,67,58,0,0,0,0,0,64,0,-1--1--1,,1|(1246,500)|
+10,69,Platform Range i,1454,376,49,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,70,69,63,0,0,0,0,0,64,0,-1--1--1,,1|(1441,439)|
+10,71,Range Weight,1223,610,60,26,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,72,71,58,0,0,0,0,0,64,0,-1--1--1,,1|(1296,620)|
+10,73,Vehicle Range Normalizer,1325,376,73,24,8,3,0,0,0,0,0,0
+1,74,73,58,0,0,0,0,0,64,0,-1--1--1,,1|(1335,499)|
+10,75,Fuel Search Cost Weight,1728,610,61,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,76,75,25,0,0,0,0,0,64,0,-1--1--1,,1|(1801,620)|
+1,77,59,65,0,0,0,0,0,64,0,-1--1--1,,1|(1081,291)|
+1,78,61,65,0,0,0,0,0,64,0,-1--1--1,,1|(991,289)|
+1,79,59,67,0,0,0,0,0,64,0,-1--1--1,,1|(1149,289)|
+1,80,61,67,0,0,0,0,0,64,0,-1--1--1,,1|(1058,291)|
+1,81,73,67,1,0,0,0,0,64,0,-1--1--1,,1|(1270,380)|
+10,82,Refueling possibility i,2100,609,64,24,8,2,1,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,83,FE of New Vehicles by Platform j,480,230,59,35,8,130,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,84,83,48,0,0,0,0,0,64,0,-1--1--1,,1|(516,301)|
+10,85,FE by Platform by Fuel ir,436,201,80,24,8,2,1,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,86,Utility j,1213,874,34,14,8,131,0,0,0,0,0,0
+10,87,Platform Introduced j,1338,986,66,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,88,87,86,0,0,0,0,0,64,0,-1--1--1,,1|(1275,930)|
+10,89,Min Utility,1124,993,51,14,8,3,0,0,0,0,0,0
+1,90,89,86,0,0,0,0,0,64,0,-1--1--1,,1|(1161,940)|
+10,91,Cents per Dollar,1884,376,50,24,8,3,0,0,-1,0,0,0
+1,92,91,27,0,0,0,0,0,64,0,-1--1--1,,1|(1854,434)|
+10,93,Cents per Dollar,736,379,55,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,94,93,53,0,0,0,0,0,64,0,-1--1--1,,1|(669,438)|
+1,95,2,86,0,0,0,0,0,64,0,-1--1--1,,1|(760,746)|
+1,96,1,86,0,0,0,0,0,64,0,-1--1--1,,1|(886,745)|
+1,97,8,86,0,0,0,0,0,64,0,-1--1--1,,1|(1020,746)|
+1,98,31,86,0,0,0,0,0,64,0,-1--1--1,,1|(1150,744)|
+1,99,3,86,0,0,0,0,0,64,0,-1--1--1,,1|(1414,746)|
+1,100,25,86,0,0,0,0,0,64,0,-1--1--1,,1|(1548,745)|
+1,101,37,86,0,0,0,0,0,64,0,-1--1--1,,1|(1675,746)|
+10,102,Purchase Price Weight,178,610,76,24,8,3,0,0,-1,0,0,0
+1,103,102,2,0,0,0,0,0,64,0,-1--1--1,,1|(276,621)|
+1,104,58,86,0,0,0,0,0,64,0,-1--1--1,,1|(1284,744)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Familiarity - Accumulation
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+10,1,Cumulative Familiarity ij,1505,491,204,45,3,131,0,0,0,0,0,0
+12,2,48,1630,696,13,10,0,3,0,0,-1,0,0,0
+1,3,4,2,4,0,0,22,0,0,0,-1--1--1,,1|(1630,656)|
+11,4,48,1630,616,14,10,33,3,0,0,4,0,0,0
+10,5,Familiarity Forgetting ij,1711,616,69,26,40,131,0,0,-1,0,0,0
+12,6,48,1365,706,13,10,0,3,0,0,-1,0,0,0
+1,7,8,6,100,0,0,22,0,0,0,-1--1--1,,1|(1365,666)|
+11,8,48,1365,626,14,10,33,3,0,0,4,0,0,0
+10,9,Familiarity Increase ij,1446,626,69,31,40,131,0,0,-1,0,0,0
+12,10,48,1140,496,13,10,0,3,0,0,-1,0,0,0
+1,11,12,10,100,0,0,22,0,0,0,-1--1--1,,1|(1179,496)|
+11,12,48,1215,496,10,14,34,3,0,0,1,0,0,0
+10,13,Familiarity Discards ij,1215,538,54,24,40,131,0,0,-1,0,0,0
+12,14,48,1940,496,13,10,0,3,0,0,-1,0,0,0
+1,15,16,14,4,0,0,22,0,0,0,-1--1--1,,1|(1874,496)|
+11,16,48,1810,496,10,14,34,131,0,0,1,0,0,0
+10,17,Familiarity Sales ij,1810,531,80,24,40,131,0,0,-1,0,0,0
+10,18,Installed Base i,1011,616,60,30,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,19,Average Familiarity ij,1115,316,95,25,8,131,0,0,0,0,0,0
+10,20,Direct Exposure to Platform j,969,773,81,24,8,131,0,0,0,0,0,0
+10,21,Linear Effect of Exposure on Forgetting ij,1725,801,76,35,8,131,0,0,0,0,0,0
+10,22,Epsilon,1905,826,49,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,23,Social Exposure Offset EtaRef,1656,931,89,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,24,Total Marketing Exposure j,1370,941,85,25,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,25,Exposure from Drivers j,645,679,75,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+1,26,1,19,1,0,43,0,2,192,0,-1--1--1,|12||0-0-0,1|(1426,391)|
+1,27,8,1,4,0,0,22,0,0,0,-1--1--1,,1|(1365,576)|
+1,28,4,1,100,0,0,22,0,0,0,-1--1--1,,1|(1630,571)|
+1,29,16,1,100,0,0,22,0,0,0,-1--1--1,,1|(1754,496)|
+10,30,SW Forgetting,1906,616,80,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,31,30,5,1,0,0,0,0,64,0,-1--1--1,,1|(1854,621)|
+1,32,1,5,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1705,576)|
+1,33,21,5,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1735,726)|
+1,34,18,19,1,0,0,0,0,64,0,-1--1--1,,1|(1016,441)|
+1,35,18,8,1,0,0,0,0,64,0,-1--1--1,,1|(1210,681)|
+1,36,25,20,1,0,0,0,0,64,0,-1--1--1,,1|(784,736)|
+10,37,SW Familiarity Spillovers,979,976,80,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,38,Extent of Familiarity Spillovers,529,983,59,35,8,131,0,0,0,0,0,0
+1,39,22,21,1,0,0,0,0,64,0,-1--1--1,,1|(1825,791)|
+1,40,23,21,1,0,0,0,0,64,0,-1--1--1,,1|(1686,851)|
+10,41,Normal Forget Rate Phi,1871,721,79,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,42,41,5,1,0,0,0,0,64,0,-1--1--1,,1|(1821,686)|
+10,43,Cross Platform Exposure ij,975,874,76,24,8,3,0,0,0,0,0,0
+1,44,37,43,1,0,0,0,0,64,0,-1--1--1,,1|(976,936)|
+10,45,Total Social Exposure to Platform ij,1375,811,61,35,8,3,0,0,0,0,0,0
+1,46,45,21,1,0,0,0,0,64,0,-1--1--1,,1|(1520,821)|
+1,47,45,8,1,0,0,0,0,64,0,-1--1--1,,1|(1334,753)|
+1,48,43,45,1,0,0,0,0,64,0,-1--1--1,,1|(1155,899)|
+10,49,Familiarity Spillover Matrix jk,764,956,91,24,8,3,0,0,0,0,0,0
+1,50,38,49,1,0,0,0,0,64,0,-1--1--1,,1|(636,964)|
+1,51,49,43,1,0,0,0,0,64,0,-1--1--1,,1|(874,934)|
+1,52,20,43,1,0,0,0,0,64,0,-1--1--1,,1|(969,819)|
+10,53,"Platform From/To ij",1316,381,56,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,54,19,16,1,0,0,0,0,64,0,-1--1--1,,1|(1611,331)|
+1,55,53,64,1,0,0,0,0,64,0,-1--1--1,,1|(1266,373)|
+10,56,Initial Familiarity ij,1505,561,95,14,8,2,2,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,57,24,45,1,0,0,0,0,64,0,-1--1--1,,1|(1375,876)|
+10,58,Platform Introduction Date j,671,828,89,35,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,59,58,43,1,0,0,0,0,64,0,-1--1--1,,1|(841,876)|
+10,60,Time,1140,954,39,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,61,60,43,0,0,0,0,0,64,0,-1--1--1,,1|(1075,923)|
+10,62,Vehicle Discards i,1831,373,51,24,8,3,0,0,0,0,0,0
+1,63,19,64,0,0,43,12,0,64,0,-1--1--1,,1|(1158,366)|
+10,64,Familiarity swaps,1206,421,86,14,8,131,0,0,0,0,0,0
+1,65,64,13,0,0,43,12,0,64,0,-1--1--1,,1|(1208,464)|
+10,66,Vehicles 0 to 4 Retirements i,2084,341,81,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,67,66,62,0,0,0,0,0,64,0,-1--1--1,,1|(1950,356)|
+10,68,Vehicles 13 plus Retirements i,1645,278,89,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,69,68,62,0,0,0,0,0,64,0,-1--1--1,,1|(1729,320)|
+10,70,Vehicles 5 to 8 Retirements i,2029,256,79,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,71,70,62,0,0,0,0,0,64,0,-1--1--1,,1|(1938,309)|
+10,72,Vehicles 9 to 12 Retirements i,1841,256,85,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,73,72,62,0,0,0,0,0,64,0,-1--1--1,,1|(1836,305)|
+10,74,Platform Introduction Date j,781,296,89,35,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,75,Time,1080,246,39,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,76,74,19,1,0,0,0,0,64,0,-1--1--1,,1|(914,326)|
+1,77,75,19,1,0,0,0,0,64,0,-1--1--1,,1|(1106,281)|
+10,78,Initial Familiarity ij,2074,441,64,25,8,131,0,0,-1,0,0,0
+10,79,Initial Installed Base i,2076,546,79,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,80,79,78,0,0,0,0,0,0,0,-1--1--1,,1|(2075,503)|
+1,81,62,16,0,0,0,0,0,64,0,-1--1--1,,1|(1820,433)|
+1,82,12,1,4,0,0,22,0,0,0,-1--1--1,,1|(1263,496)|
+1,83,19,8,1,0,0,0,0,64,0,-1--1--1,,1|(1125,566)|
+1,84,78,1,0,0,0,0,0,64,1,-1--1--1,,1|(1868,458)|
+1,85,20,45,1,0,0,0,0,64,0,-1--1--1,,1|(1176,809)|
+10,86,Average Familiarity i,845,400,58,24,8,3,0,0,0,0,0,0
+1,87,19,86,0,0,0,0,0,64,0,-1--1--1,,1|(976,358)|
+1,88,18,86,1,0,0,0,0,64,0,-1--1--1,,1|(909,553)|
+10,89,Total Installed Base,725,498,70,24,8,3,0,0,0,0,0,0
+1,90,18,89,1,0,0,0,0,64,0,-1--1--1,,1|(853,595)|
+1,91,89,86,1,0,0,0,0,64,0,-1--1--1,,1|(751,445)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Familiarity - Exposure Parameters
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+10,1,Total Marketing Exposure j,845,1011,81,26,8,131,0,0,0,0,0,0
+10,2,Exposure from Drivers j,1681,884,70,24,8,3,0,0,0,0,0,0
+10,3,Marketing Effectiveness,645,916,76,26,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,4,Marketing Spending j,680,766,105,20,8,131,0,0,0,0,0,0
+1,5,3,1,0,0,0,0,0,64,0,-1--1--1,,1|(736,959)|
+10,6,Platform Introduction Date j,896,606,81,39,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,7,6,4,0,0,0,0,0,64,0,-1--1--1,,1|(783,690)|
+10,8,Spending by Platform j,506,661,65,24,8,131,0,2,-1,0,0,0,0-0-0,0-0-0,|12||255-128-0
+1,9,8,4,0,0,0,0,0,64,0,-1--1--1,,1|(588,710)|
+10,10,Time,920,709,35,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,11,10,4,0,0,0,0,0,64,0,-1--1--1,,1|(831,729)|
+10,12,Probability of Contact with Drivers j,1536,700,95,35,8,3,0,0,0,0,0,0
+10,13,Installed Base i,1511,536,90,20,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,14,13,12,0,0,0,0,0,64,0,-1--1--1,,1|(1520,601)|
+1,15,12,2,0,0,0,0,0,64,0,-1--1--1,,1|(1608,790)|
+10,16,Effective Contact Rate Drivers,1793,700,95,29,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,17,16,2,0,0,0,0,0,64,0,-1--1--1,,1|(1740,786)|
+10,18,"Cross-Platform Marketing Spending ij",973,866,101,35,8,3,0,0,0,0,0,0
+1,19,4,18,0,0,0,0,0,64,0,-1--1--1,,1|(795,805)|
+10,20,Marketing Spillover Matrix ij,1135,721,89,24,8,3,0,0,0,0,0,0
+1,21,20,18,0,0,0,0,0,64,0,-1--1--1,,1|(1066,781)|
+10,22,Extent of Marketing Spillovers,1256,624,51,35,8,3,0,0,-1,0,0,0
+1,23,22,20,0,0,0,0,0,64,0,-1--1--1,,1|(1195,673)|
+1,24,18,1,0,0,0,0,0,64,0,-1--1--1,,1|(910,936)|
+10,25,Regular Marketing Spending i,695,604,55,35,8,3,0,0,0,0,0,0
+10,26,OEM Revenue i,525,506,89,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||255-128-0
+10,27,Marketing Fraction of Revenue,725,434,55,35,8,3,0,0,0,0,0,0
+1,28,26,25,0,0,0,0,0,64,0,-1--1--1,,1|(586,541)|
+1,29,27,25,0,0,0,0,0,64,0,-1--1--1,,1|(711,510)|
+1,30,25,4,0,0,0,0,0,64,0,-1--1--1,,1|(688,684)|
+10,31,Dollars per Million,900,491,90,14,8,3,0,0,0,0,0,0
+1,32,31,25,0,0,0,0,0,64,0,-1--1--1,,1|(820,534)|
+1,33,10,20,0,0,0,0,0,64,0,-1--1--1,,1|(991,711)|
+1,34,6,20,0,0,0,0,0,64,0,-1--1--1,,1|(1023,666)|
+10,35,marketing spending,319,580,51,24,8,3,0,0,-1,0,0,0
+1,36,35,8,0,0,0,0,0,64,0,-1--1--1,,1|(403,615)|
+10,37,marketing spending DURATION,323,746,56,35,8,3,0,0,-1,0,0,0
+1,38,37,8,0,0,0,0,0,64,0,-1--1--1,,1|(408,706)|
+10,39,marketing spending START,319,668,86,24,8,3,0,0,-1,0,0,0
+1,40,39,8,0,0,0,0,0,64,0,-1--1--1,,1|(414,664)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Fleet - Turnover
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+12,1,48,308,516,13,10,0,3,0,16,-1,0,0,0,0-0-0,0-0-0,|12|B|0-0-0
+1,2,3,1,100,0,0,22,0,0,0,-1--1--1,,1|(366,516)|
+11,3,48,423,516,10,14,34,3,0,0,1,0,0,0
+10,4,Vehicle Sales i,423,544,74,14,40,3,0,0,-1,0,0,0
+10,5,Vehicle Discards i,665,911,51,24,8,3,0,0,0,0,0,0
+10,6,Share ij,266,910,50,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,7,Platform Demand j,361,700,91,14,8,3,0,0,0,0,0,0
+1,8,5,7,1,0,0,0,0,64,0,-1--1--1,,1|(463,816)|
+10,9,Installed Base i,808,260,84,19,8,131,0,0,0,0,0,0
+10,10,"Platform From/To ij",573,1111,95,14,8,3,0,0,0,0,0,0
+1,11,6,10,1,0,0,0,0,64,0,-1--1--1,,1|(366,1016)|
+1,12,5,10,1,0,0,0,0,64,0,-1--1--1,,1|(620,1026)|
+10,13,NV Discard Fr,750,770,59,24,8,3,0,16,0,0,0,0,0-0-0,0-0-0,|12|B|255-0-0
+10,14,Vehicles 5 to 8 years i,918,516,49,35,3,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||0-0-255
+10,15,Vehicles 9 to 12 years i,1288,516,49,39,3,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||0-0-255
+1,16,17,15,4,0,0,22,0,0,0,-1--1--1,,1|(1176,516)|
+11,17,5724,1105,516,9,10,34,3,0,0,1,0,0,0
+10,18,Vehicle Aging 2 i,1105,546,91,20,40,131,0,2,-1,0,0,0,0-0-0,0-0-0,|12||0-0-255
+1,19,14,17,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(995,434)|
+1,20,17,14,100,0,0,22,0,0,0,-1--1--1,,1|(1031,516)|
+10,21,Aging Time Lambda,798,380,59,24,8,131,0,0,0,0,0,0
+12,22,48,918,706,13,10,0,3,0,0,-1,0,0,0
+1,23,25,22,4,0,0,22,0,0,0,-1--1--1,,1|(918,660)|
+1,24,25,14,100,0,0,22,0,0,0,-1--1--1,,1|(918,579)|
+11,25,48,918,616,10,9,33,3,0,0,4,0,0,0
+10,26,Vehicles 5 to 8 Retirements i,1001,616,74,24,40,3,0,2,-1,0,0,0,0-0-0,0-0-0,|12||0-0-255
+12,27,48,1288,706,13,10,0,3,0,0,-1,0,0,0
+1,28,30,27,4,0,0,22,0,0,0,-1--1--1,,1|(1288,660)|
+1,29,30,15,100,0,0,22,0,0,0,-1--1--1,,1|(1288,581)|
+11,30,48,1288,616,10,9,33,3,0,0,4,0,0,0
+10,31,Vehicles 9 to 12 Retirements i,1376,616,79,24,40,3,0,2,-1,0,0,0,0-0-0,0-0-0,|12||0-0-255
+10,32,Aging Time Lambda,1135,380,64,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,33,32,17,1,0,45,0,2,64,0,-1--1--1,|12||0-0-0,1|(1148,454)|
+10,34,Vehicles 5 to 8 Discard Fraction,1143,770,84,24,8,3,0,0,0,0,0,0
+1,35,34,26,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1123,689)|
+1,36,14,26,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1008,571)|
+10,37,"Vehicles 13+ years i",1620,516,50,40,3,131,0,2,0,0,0,0,0-0-0,0-0-0,|12|B|0-0-255
+12,38,48,1620,706,13,10,0,3,0,0,-1,0,0,0
+1,39,41,38,4,0,0,22,0,0,0,-1--1--1,,1|(1620,660)|
+1,40,41,37,100,0,0,22,0,0,0,-1--1--1,,1|(1620,581)|
+11,41,48,1620,616,10,9,33,3,0,0,4,0,0,0
+10,42,Vehicles 13 plus Retirements i,1715,616,85,24,40,3,0,2,-1,0,0,0,0-0-0,0-0-0,|12||0-0-255
+1,43,37,42,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1748,526)|
+1,44,46,37,4,0,0,22,0,0,0,-1--1--1,,1|(1519,516)|
+1,45,46,15,100,0,0,22,0,0,0,-1--1--1,,1|(1394,516)|
+11,46,5916,1460,516,9,10,34,3,0,0,1,0,0,0
+10,47,Vehice Aging 3 i,1460,550,69,24,40,131,0,2,-1,0,0,0,0-0-0,0-0-0,|12||0-0-255
+1,48,15,46,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1421,445)|
+1,49,15,31,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1375,564)|
+10,50,Aging Time Lambda,1473,380,64,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,51,50,46,1,0,45,0,2,64,0,-1--1--1,|12||0-0-0,1|(1485,430)|
+10,52,Vehicles 9 to 12 Discard Fraction,1520,770,84,24,8,3,0,0,0,0,0,0
+1,53,52,31,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1518,689)|
+10,54,Vehicles Retirement Fraction,1830,770,66,34,8,131,0,0,0,0,0,0
+1,55,54,42,1,0,45,0,2,64,0,-1--1--1,|12||0-0-0,1|(1810,701)|
+10,56,Vehicles 0 to 4 years i,553,516,49,39,3,131,0,0,0,0,0,0
+1,57,58,56,100,0,0,22,0,0,0,-1--1--1,,1|(658,516)|
+11,58,5676,723,516,9,10,34,3,0,0,1,0,0,0
+10,59,Vehicle Aging i,723,540,74,14,40,131,0,2,-1,0,0,0,0-0-0,0-0-0,|12||0-0-255
+1,60,56,58,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(638,429)|
+12,61,48,553,706,13,10,0,3,0,16,-1,0,0,0,0-0-0,0-0-0,|12|B|0-0-0
+1,62,64,61,4,0,0,22,0,0,0,-1--1--1,,1|(553,660)|
+1,63,64,56,100,0,0,22,0,0,0,-1--1--1,,1|(553,581)|
+11,64,48,553,616,10,9,33,3,0,0,4,0,0,0
+10,65,Vehicles 0 to 4 Retirements i,636,616,74,24,40,131,0,2,-1,0,0,0,0-0-0,0-0-0,|12|B|0-0-255
+1,66,56,65,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(635,576)|
+1,67,58,14,4,0,0,22,0,0,0,-1--1--1,,1|(800,516)|
+1,68,3,56,4,0,0,22,0,0,0,-1--1--1,,1|(468,516)|
+10,69,Used Vehicles i,1295,260,49,24,8,3,0,0,0,0,0,0
+1,70,56,9,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(670,299)|
+1,71,69,9,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1081,235)|
+1,72,14,69,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1031,335)|
+1,73,15,69,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1283,340)|
+1,74,37,69,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1538,335)|
+1,75,13,65,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(693,636)|
+1,76,21,58,1,0,45,0,2,64,0,-1--1--1,|12||0-0-0,1|(775,451)|
+1,77,65,5,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(670,769)|
+1,78,26,5,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(883,814)|
+1,79,31,5,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(1220,841)|
+1,80,42,5,1,0,43,0,2,192,0,-1--1--1,|12||0-0-0,1|(1368,981)|
+1,81,6,7,1,0,0,0,0,64,0,-1--1--1,,1|(281,805)|
+10,82,"Initial Installed Base - Vehicles 5 to 8 years i",918,570,114,24,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,83,82,14,0,1,0,0,0,64,1,-1--1--1,,1|(918,558)|
+10,84,"Initial Installed Base - Vehicles 9 to 12 years i",1288,576,111,35,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,85,84,15,0,1,0,0,0,64,1,-1--1--1,,1|(1288,556)|
+10,86,"Initial Installed Base - Vehicles 13 plus years i",1620,579,114,35,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,87,86,37,0,1,0,0,0,64,1,-1--1--1,,1|(1620,559)|
+10,88,"Initial Installed Base - Vehicles 0 to 4 years i",553,569,114,24,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,89,88,56,0,1,0,0,0,64,1,-1--1--1,,1|(553,559)|
+1,90,7,4,1,0,0,0,0,64,0,-1--1--1,,1|(380,601)|
+10,91,Market Growth Rate,441,909,75,25,8,131,0,0,0,0,0,0
+1,92,91,7,1,0,0,0,0,64,0,-1--1--1,,1|(368,795)|
+10,93,Installed Base Percent i,1050,111,71,24,8,3,0,0,0,0,0,0
+10,94,Vehicle Sales Share i,336,425,68,24,8,3,0,0,0,0,0,0
+1,95,3,94,0,0,0,0,0,64,0,-1--1--1,,1|(393,485)|
+10,96,Installed Base Share i,845,153,71,24,8,3,0,0,0,0,0,0
+1,97,9,96,1,0,0,0,0,64,0,-1--1--1,,1|(791,196)|
+1,98,96,93,1,0,0,0,0,64,0,-1--1--1,,1|(908,118)|
+10,99,Vehicle Sales Percent i,131,406,68,24,8,3,0,0,0,0,0,0
+1,100,94,99,0,0,0,0,0,64,0,-1--1--1,,1|(241,416)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Fleet - Initial Installed Base
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,78,0
+10,1,"Initial Installed Base - Used Vehicles i",1016,749,100,24,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,2,Initial Installed Base i,639,754,79,25,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,3,1,2,1,0,43,0,34,192,0,-1--1--1,Arial|12||0-0-0,1|(814,765)|
+10,4,"Initial Installed Base - Vehicles 0 to 4 years i",436,489,109,24,8,131,0,50,0,0,0,0,-1--1--1,0-0-0,Arial|12|B|0-0-255
+10,5,"Initial Installed Base - Vehicles 5 to 8 years i",839,489,109,24,8,131,0,50,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-255
+10,6,"Initial Installed Base - Vehicles 9 to 12 years i",1294,499,109,35,8,131,0,50,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-255
+10,7,"Initial Installed Base - Vehicles 13 plus years i",1671,494,105,35,8,131,0,50,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-255
+1,8,7,1,1,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(1481,674)|
+1,9,6,1,1,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(1255,640)|
+1,10,5,1,1,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(1015,704)|
+1,11,4,2,1,0,0,0,0,64,0,-1--1--1,,1|(481,606)|
+10,12,Light Vehicle Market Size j,855,149,71,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,13,12,4,1,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(505,314)|
+1,14,12,5,1,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(824,244)|
+1,15,12,6,1,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(1194,290)|
+1,16,12,7,1,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(1365,199)|
+10,17,Aging Time Lambda,339,345,64,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,18,Vehicle Lifetime,716,349,46,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,19,Aging Time Lambda,614,429,64,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,20,Vehicle Lifetime,1331,334,46,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,21,Aging Time Lambda,1140,379,64,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,22,21,6,1,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(1215,419)|
+10,23,Vehicle Lifetime,1889,479,46,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,24,Aging Time Lambda,1664,334,64,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,25,24,7,1,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(1686,419)|
+10,26,SW Initial Stock in Equilibrium,1829,370,90,24,8,3,0,50,0,0,0,0,0-0-0,0-0-0,Arial|12|B|255-0-255
+1,27,26,7,0,0,0,0,0,64,0,-1--1--1,,1|(1764,420)|
+10,28,Vehicles 0 to 4 years i,939,364,79,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,29,Vehicles 5 to 8 Discard Fraction,865,644,89,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,30,28,5,1,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(909,434)|
+1,31,29,5,1,0,45,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(844,579)|
+10,32,Vehicles 5 to 8 years i,1450,400,79,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,33,Vehicles 9 to 12 Discard Fraction,1411,589,89,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,34,32,6,1,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(1390,445)|
+1,35,33,6,0,0,45,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(1366,554)|
+10,36,Vehicles 9 to 12 years i,1655,654,70,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,37,Vehicles Retirement Fraction,1804,590,55,35,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,38,36,7,0,0,43,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(1660,588)|
+1,39,37,7,0,0,45,0,34,64,0,-1--1--1,Arial|12||0-0-0,1|(1744,546)|
+10,40,SW Initial Stock in Equilibrium,665,624,84,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,41,40,5,1,0,0,0,0,64,0,-1--1--1,,1|(774,564)|
+10,42,SW Initial Stock in Equilibrium,1144,585,84,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,43,42,6,0,0,0,0,0,64,0,-1--1--1,,1|(1200,551)|
+10,44,Vehicles 9 to 12 Discard Fraction,234,564,89,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,45,Vehicles Retirement Fraction,349,640,55,35,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,46,Vehicles 5 to 8 Discard Fraction,209,429,89,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,47,46,4,0,0,0,0,0,64,0,-1--1--1,,1|(313,455)|
+1,48,44,4,0,0,0,0,0,64,0,-1--1--1,,1|(325,529)|
+1,49,45,4,0,0,0,0,0,64,0,-1--1--1,,1|(390,566)|
+1,50,23,7,0,0,0,0,0,64,0,-1--1--1,,1|(1818,483)|
+1,51,17,4,0,0,0,0,0,64,0,-1--1--1,,1|(381,409)|
+1,52,20,6,0,0,0,0,0,64,0,-1--1--1,,1|(1315,401)|
+1,53,18,5,0,0,0,0,0,64,0,-1--1--1,,1|(770,411)|
+1,54,19,5,0,0,0,0,0,64,0,-1--1--1,,1|(704,453)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Infrastructure - Availability
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+10,1,Available Infrastructure f,820,944,75,30,3,131,0,0,0,0,0,0
+12,2,48,815,774,13,10,0,3,0,0,-1,0,0,0
+1,3,5,1,4,0,0,22,0,0,0,-1--1--1,,1|(815,871)|
+1,4,5,2,100,0,0,22,0,0,0,-1--1--1,,1|(815,796)|
+11,5,48,815,819,14,10,33,3,0,0,4,0,0,0
+10,6,Exogenous Infrastructure f,905,819,75,24,40,131,0,0,-1,0,0,0
+10,7,Time to Install Infrastructure f,655,849,81,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+12,8,48,1210,939,13,10,0,3,0,0,-1,0,0,0
+1,9,11,8,4,0,0,22,0,0,0,-1--1--1,,1|(1111,934)|
+1,10,11,1,100,0,0,22,0,0,0,-1--1--1,,1|(950,934)|
+11,11,48,1016,934,10,14,34,3,0,0,1,0,0,0
+10,12,Infrastructure Exits f,1016,974,70,24,40,3,0,0,-1,0,0,0
+10,13,Infrastructure Life f,1126,1029,74,24,8,130,0,3,0,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,14,Infrastructure Utilization f,1631,224,70,24,8,3,0,0,0,0,0,0
+10,15,Infrastructure Stock Level Adjustment f,676,439,74,35,8,131,0,0,0,0,0,0
+1,16,1,12,1,0,0,0,0,64,0,-1--1--1,,1|(885,991)|
+10,17,Infrastructure in Construction f,440,944,81,40,3,131,0,0,0,0,0,0
+1,18,20,1,4,0,0,22,0,0,0,-1--1--1,,1|(686,939)|
+1,19,20,17,100,0,0,22,0,0,0,-1--1--1,,1|(566,939)|
+11,20,4668,620,939,9,10,34,3,0,0,1,0,0,0
+10,21,Infrastructure Aquisition Rate f,620,974,84,24,40,3,0,0,-1,0,0,0
+1,22,17,21,1,0,0,0,0,64,0,-1--1--1,,1|(545,1029)|
+1,23,7,21,1,0,0,0,0,64,0,-1--1--1,,1|(650,909)|
+12,24,48,180,939,13,10,0,3,0,0,-1,0,0,0
+1,25,27,17,4,0,0,22,0,0,0,-1--1--1,,1|(321,939)|
+1,26,27,24,100,0,0,22,0,0,0,-1--1--1,,1|(229,939)|
+11,27,48,275,939,9,10,34,3,0,0,1,0,0,0
+10,28,Infrastructure Order Rate f,275,974,75,29,40,131,0,0,-1,0,0,0
+10,29,Infrastructure Supply Line Adjustment f,365,839,69,35,8,3,0,0,0,0,0,0
+1,30,17,29,1,0,0,0,0,64,0,-1--1--1,,1|(460,864)|
+10,31,Supply Line Adjustment Time f,365,699,96,26,8,131,0,0,0,0,0,0
+1,32,31,29,1,0,0,0,0,64,0,-1--1--1,,1|(335,779)|
+1,33,13,12,1,0,0,0,0,64,0,-1--1--1,,1|(1040,1009)|
+1,34,29,27,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(305,874)|
+10,35,Time to Install Infrastructure f,864,364,80,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,36,35,15,1,0,45,0,2,64,0,-1--1--1,|12||0-0-0,1|(771,365)|
+10,37,Infrastructure Loss Rate f,1023,584,69,24,8,3,0,0,0,0,0,0
+1,38,12,37,1,0,0,0,0,64,0,-1--1--1,,1|(1175,729)|
+10,39,Desired Infrastructure Aquisition Rate f,401,579,84,35,8,3,0,0,0,0,0,0
+1,40,37,39,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(736,511)|
+1,41,15,39,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(540,476)|
+1,42,39,28,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(235,719)|
+10,43,Initial Infrastructure in Construction f,441,1084,99,24,8,131,0,0,-1,0,0,0
+1,44,43,17,0,0,0,0,0,64,1,-1--1--1,,1|(440,1030)|
+10,45,Desired Infrastructure f,1086,479,80,24,8,131,0,0,0,0,0,0
+1,46,45,15,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(831,419)|
+10,47,Desired Infrastructure Under Construction f,635,724,101,35,8,3,0,0,0,0,0,0
+1,48,39,47,1,0,0,0,0,64,0,-1--1--1,,1|(555,614)|
+1,49,7,47,1,0,0,0,0,64,0,-1--1--1,,1|(660,784)|
+1,50,47,29,1,0,0,0,0,64,0,-1--1--1,,1|(475,764)|
+10,51,Initial Infrastructure Availability f,828,1074,69,35,8,3,0,0,-1,0,0,0
+1,52,51,1,0,0,0,0,0,64,1,-1--1--1,,1|(824,1014)|
+10,53,Demand for Infrastructure f,1678,121,80,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,54,53,14,0,0,0,0,0,64,0,-1--1--1,,1|(1658,164)|
+1,55,1,45,1,0,0,0,0,64,0,-1--1--1,,1|(1265,994)|
+1,56,51,43,0,0,0,0,0,64,1,-1--1--1,,1|(658,1076)|
+1,57,13,43,0,0,0,0,0,64,1,-1--1--1,,1|(805,1053)|
+1,58,7,43,0,0,0,0,0,64,1,-1--1--1,,1|(554,959)|
+10,59,Stations per Year f,919,749,61,24,8,3,0,2,-1,0,0,0,128-128-128,0-0-0,|12||255-128-0
+1,60,59,6,0,0,0,0,0,64,0,-1--1--1,,1|(914,775)|
+10,61,extra stations,800,673,68,14,8,3,0,0,-1,0,0,0
+1,62,61,59,0,0,0,0,0,0,0,-1--1--1,,1|(844,700)|
+10,63,extra stations DURATION,926,649,69,24,8,3,0,0,-1,0,0,0
+1,64,63,59,0,0,0,0,0,0,0,-1--1--1,,1|(923,690)|
+10,65,extra stations START,1068,704,69,24,8,3,0,0,-1,0,0,0
+1,66,65,59,0,0,0,0,0,0,0,-1--1--1,,1|(998,724)|
+10,67,Station Profit f,736,45,44,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,68,Recent Station Profit Margin f,1154,168,74,24,8,131,0,0,0,0,0,0
+10,69,Normalised Station profit Margin f,996,106,96,24,8,131,0,0,0,0,0,0
+1,70,67,69,1,0,0,0,0,64,0,-1--1--1,,1|(843,106)|
+1,71,69,68,1,0,0,0,0,64,0,-1--1--1,,1|(1041,146)|
+10,72,Target Profitability f,915,271,64,24,8,3,0,0,0,0,0,0
+10,73,Ratio of Recent Profit Margin to Target Profitability f,1149,295,106,35,8,3,0,0,0,0,0,0
+1,74,72,73,1,0,0,0,0,64,0,-1--1--1,,1|(995,270)|
+10,75,Recent Utilization f,1383,171,56,24,8,3,0,0,0,0,0,0
+10,76,Infrastructure Perception Time,1275,81,84,24,8,3,0,0,-1,0,0,0
+10,77,Ratio of Projected Utilization and Target Utilization f,1376,291,106,35,8,3,0,0,0,0,0,0
+10,78,Target Utilization f,1600,353,56,24,8,3,0,0,-1,0,0,0
+1,79,78,77,1,0,0,0,0,64,0,-1--1--1,,1|(1464,301)|
+1,80,76,75,0,0,0,0,0,64,0,-1--1--1,,1|(1321,120)|
+1,81,76,68,0,0,0,0,0,64,0,-1--1--1,,1|(1221,119)|
+10,82,Combined effect f,1264,419,54,24,8,3,0,0,0,0,0,0
+1,83,73,82,1,0,0,0,0,64,0,-1--1--1,,1|(1200,376)|
+10,84,Sensitivity Effect Alpha,1420,513,61,24,8,3,0,0,0,0,0,0
+1,85,68,73,1,0,0,0,0,64,0,-1--1--1,,1|(1148,230)|
+1,86,75,77,1,0,0,0,0,64,0,-1--1--1,,1|(1384,223)|
+1,87,75,78,0,0,0,0,0,64,1,-1--1--1,,1|(1484,256)|
+1,88,68,72,1,0,0,0,0,64,1,-1--1--1,,1|(1059,134)|
+1,89,82,45,1,0,0,0,0,64,0,-1--1--1,,1|(1180,430)|
+1,90,82,43,0,1,0,0,0,64,1,-1--1--1,,1|(859,745)|
+1,91,14,75,0,0,0,0,0,64,0,-1--1--1,,1|(1508,198)|
+1,92,1,14,1,0,0,0,0,64,0,-1--1--1,,1|(1706,966)|
+1,93,1,15,1,0,0,0,0,64,0,-1--1--1,,1|(394,1199)|
+10,94,TF Effect of Profit on Desired Infrastructure,1064,376,109,24,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||0-128-0
+1,95,94,82,0,0,0,0,0,64,0,-1--1--1,,1|(1183,400)|
+10,96,Infrastructure Fixed Costs Amortized over 20 years f,794,200,109,35,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,97,96,69,0,0,0,0,0,64,0,-1--1--1,,1|(898,150)|
+1,98,77,82,1,0,0,0,0,64,0,-1--1--1,,1|(1339,365)|
+1,99,84,82,1,0,0,0,0,64,0,-1--1--1,,1|(1315,475)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Infrastructure - Demand
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+10,1,Installed Base i,1470,723,49,24,8,130,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,2,Demand for Infrastructure f,1470,1016,74,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,3,"Fleet Refuels Required per Year by Platform-Fuel ir",1681,643,114,35,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,4,Fuel Dispensing Rate r,926,593,84,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,5,Refueling Time ir,1179,356,49,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,6,4,5,0,0,0,0,0,64,0,-1--1--1,,1|(1045,480)|
+10,7,Refueling Capacity per Fueltype per Year ir,1273,558,106,35,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,8,5,7,0,0,0,0,0,64,0,-1--1--1,,1|(1218,443)|
+10,9,Operating Hours per Year by Fuel r,1014,860,89,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,10,9,7,0,0,0,0,0,64,0,-1--1--1,,1|(1131,720)|
+10,11,Transaction Time by Fuel r,1045,255,71,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,12,11,5,0,0,0,0,0,64,0,-1--1--1,,1|(1104,300)|
+10,13,Fuel Usage Matrix ir,1475,359,64,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,14,13,5,0,0,0,0,0,64,0,-1--1--1,,1|(1328,358)|
+10,15,Demand for Infrastructure by Pumps ir,1298,735,84,35,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,16,3,15,0,0,0,0,0,64,0,-1--1--1,,1|(1483,689)|
+1,17,7,15,1,0,0,0,0,64,0,-1--1--1,,1|(1294,635)|
+10,18,Demand for Pump by Fuel type r,1283,850,91,24,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,19,15,18,0,0,0,0,0,64,0,-1--1--1,,1|(1290,789)|
+1,20,18,2,0,0,0,0,0,64,0,-1--1--1,,1|(1369,926)|
+1,21,1,3,0,0,0,0,0,64,0,-1--1--1,,1|(1545,694)|
+10,22,"Refuels per Year by Platform-Fuel ir",1571,508,99,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,23,22,3,0,0,0,0,0,64,0,-1--1--1,,1|(1615,563)|
+10,24,Pumps per Station f,1619,1116,61,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,25,24,2,0,0,0,0,0,64,0,-1--1--1,,1|(1551,1070)|
+10,26,FE by Platform by Fuel ir,1251,105,80,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,27,Effective Range ir,1741,294,50,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,28,Refueling Capacity ir,1279,255,54,24,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,29,26,28,0,0,0,0,0,64,0,-1--1--1,,1|(1263,171)|
+1,30,27,28,0,0,0,0,0,64,0,-1--1--1,,1|(1520,275)|
+1,31,28,5,1,0,0,0,0,64,0,-1--1--1,,1|(1225,296)|
+10,32,Maximum Fuel Dispensing Capacity per Pump r,968,726,104,35,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,33,9,32,1,0,0,0,0,64,0,-1--1--1,,1|(990,780)|
+1,34,4,32,1,0,0,0,0,64,0,-1--1--1,,1|(946,638)|
+10,35,Cumulative Order Fulfillment j,639,551,94,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,36,Effect of Experience on Recharging Rate,553,701,116,35,8,3,0,0,0,0,0,0
+10,37,Learning Rate Recharging Rate,235,599,104,35,8,131,0,0,-1,0,0,0
+1,38,37,36,1,0,0,0,0,64,0,-1--1--1,,1|(355,610)|
+1,39,36,4,1,0,0,0,0,64,0,-1--1--1,,1|(675,650)|
+10,40,Initial Expereince with Recharging,423,525,119,24,8,3,0,0,0,0,0,0
+1,41,35,36,0,0,0,0,0,64,0,-1--1--1,,1|(604,613)|
+1,42,40,36,0,0,0,0,0,64,0,-1--1--1,,1|(478,600)|
+10,43,Initial ELECTRIC Dispensing Rate,718,856,84,35,8,3,0,0,0,0,0,0
+1,44,43,4,0,0,0,0,0,64,0,-1--1--1,,1|(820,725)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Infrastructure - Economics
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+10,1,Available Infrastructure f,1714,264,89,34,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,2,Installed Base i,1074,356,64,30,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,3,Pumps per Station f,1714,386,71,35,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,4,VMT per Year i,1714,76,70,25,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||255-128-0
+10,5,Fuel Consumed per Platform ir,1189,271,80,24,8,131,0,0,0,0,0,0
+10,6,Ancillary Revenues Per Station,235,454,70,35,8,3,0,0,0,0,0,0
+10,7,Pump Operating Profits r,794,558,99,29,8,131,0,0,0,0,0,0
+10,8,Pump Fuel Revenues r,1014,509,65,29,8,131,0,0,0,0,0,0
+1,9,8,7,1,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(944,558)|
+10,10,Pumps per Station f,199,554,55,24,8,3,0,0,-1,0,0,0
+10,11,Pump Operating Cost r,1714,596,86,24,8,3,0,0,0,0,0,0
+10,12,Fuel Consumed Per Pump r,1384,443,80,24,8,131,0,0,0,0,0,0
+10,13,Infrastructure Fixed Costs Amortized over 20 years f,424,434,90,56,8,131,0,0,0,0,0,0
+1,14,5,12,1,0,0,0,0,64,0,-1--1--1,,1|(1284,389)|
+10,15,Fuel Usage Matrix ir,1189,49,59,24,8,3,0,0,0,0,0,0
+10,16,FE by Platform by Fuel ir,995,159,85,24,8,131,0,0,0,0,0,0
+1,17,15,16,1,0,0,0,0,64,0,-1--1--1,,1|(1084,84)|
+1,18,16,5,1,0,0,0,0,64,0,-1--1--1,,1|(1069,231)|
+10,19,Pumps by Fuel r,1464,341,51,24,8,3,0,0,0,0,0,0
+1,20,3,19,0,0,0,0,0,64,0,-1--1--1,,1|(1588,363)|
+1,21,1,19,0,0,0,0,0,64,0,-1--1--1,,1|(1578,305)|
+1,22,19,12,1,0,0,0,0,64,0,-1--1--1,,1|(1444,388)|
+10,23,Station Profit f,374,581,70,14,8,3,0,0,0,0,0,0
+1,24,6,23,0,0,0,0,0,64,0,-1--1--1,,1|(309,521)|
+1,25,13,23,0,0,0,0,0,64,0,-1--1--1,,1|(394,520)|
+1,26,2,5,0,0,0,0,0,64,0,-1--1--1,,1|(1128,315)|
+10,27,VMT Public per Year by Platform and by Fuel ir,1399,159,101,35,8,3,0,0,0,0,0,0
+10,28,Retail Fuel Price r,1189,461,59,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|255-128-0
+1,29,28,8,0,0,0,0,0,64,0,-1--1--1,,1|(1113,480)|
+10,30,Platform Introduction Date j,594,526,89,35,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,31,Time,469,686,39,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,32,31,23,0,0,0,0,0,64,0,-1--1--1,,1|(426,640)|
+10,33,Pump Costs r,1399,604,69,14,8,3,0,0,-1,0,0,0
+1,34,12,33,1,0,0,0,0,0,0,-1--1--1,,1|(1414,516)|
+1,35,11,33,0,0,0,0,0,0,0,-1--1--1,,1|(1555,599)|
+1,36,33,7,1,0,0,0,0,64,0,-1--1--1,,1|(1069,661)|
+10,37,Maximum Fuel Dispensing Capacity per Pump r,1714,506,104,35,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,38,Infrastructure Incentive f,265,686,84,24,8,3,0,0,0,0,0,0
+1,39,38,23,0,0,0,0,0,64,0,-1--1--1,,1|(316,634)|
+10,40,Average FE by Platform i,879,301,80,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,41,40,16,0,0,0,0,0,64,0,-1--1--1,,1|(930,236)|
+1,42,15,27,1,0,0,0,0,64,0,-1--1--1,,1|(1295,81)|
+1,43,4,27,0,0,0,0,0,64,0,-1--1--1,,1|(1580,110)|
+1,44,27,5,1,0,0,0,0,64,0,-1--1--1,,1|(1324,241)|
+1,45,10,23,0,0,0,0,0,64,0,-1--1--1,,1|(270,564)|
+1,46,7,23,1,0,0,0,0,64,0,-1--1--1,,1|(649,623)|
+10,47,Platform Introduction Date j,1909,146,89,35,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,48,VMT SW i,1714,183,69,24,8,3,0,0,0,0,0,0
+1,49,47,48,0,0,0,0,0,64,0,-1--1--1,,1|(1809,164)|
+10,50,Time,1909,221,39,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,51,50,48,0,0,0,0,0,64,0,-1--1--1,,1|(1835,205)|
+1,52,30,23,0,0,0,0,0,64,0,-1--1--1,,1|(475,555)|
+10,53,Retail Markup r,1714,798,76,14,8,3,0,0,0,0,0,0
+10,54,Feedstock Cost r,1490,751,85,14,8,3,0,0,0,0,0,0
+10,55,Retail Fuel Price r,1714,711,59,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||255-128-0
+1,56,55,54,0,0,0,0,0,64,0,-1--1--1,,1|(1619,728)|
+1,57,53,54,0,0,0,0,0,64,0,-1--1--1,,1|(1610,775)|
+1,58,54,33,1,0,0,0,0,64,0,-1--1--1,,1|(1429,693)|
+1,59,37,12,0,0,0,0,0,64,0,-1--1--1,,1|(1545,473)|
+1,60,48,27,0,0,0,0,0,64,0,-1--1--1,,1|(1580,173)|
+1,61,12,8,1,0,0,0,0,64,0,-1--1--1,,1|(1265,531)|
+10,62,stations incentives,459,768,53,24,8,3,0,0,-1,0,0,0
+1,63,62,38,0,0,0,0,0,64,0,-1--1--1,,1|(371,731)|
+10,64,stations incentives DURATION,290,783,56,35,8,3,0,0,-1,0,0,0
+1,65,64,38,0,0,0,0,0,64,0,-1--1--1,,1|(278,736)|
+10,66,stations incentives START,111,759,90,24,8,3,0,0,-1,0,0,0
+1,67,66,38,0,0,0,0,0,64,0,-1--1--1,,1|(179,726)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Infrastructure - Buffer
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+10,1,US Area Square Miles,101,524,65,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,2,Available Infrastructure f,101,771,80,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,3,Density of Stations f,101,639,51,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,4,2,3,0,0,0,0,0,64,0,-1--1--1,,1|(101,714)|
+1,5,1,3,0,0,0,0,0,64,0,-1--1--1,,1|(101,573)|
+10,6,Average Distance to Station f,286,639,89,24,8,3,0,48,0,0,0,0,-1--1--1,0-0-0,Arial|12|B|255-0-0
+10,7,Fuel Buffer i,1201,604,71,39,3,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,8,Average Distance Unit Correction,286,524,89,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,9,8,6,0,0,0,0,0,64,0,-1--1--1,,1|(286,573)|
+12,10,48,981,604,13,10,0,3,0,48,-1,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,11,13,7,4,0,0,22,0,0,0,-1--1--1,,1|(1095,604)|
+1,12,13,10,100,0,0,22,0,0,0,-1--1--1,,1|(1018,604)|
+11,13,48,1051,604,9,10,34,3,0,0,1,0,0,0
+10,14,Buffer Change Rate,1051,639,74,24,40,3,0,48,-1,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,15,7,14,1,0,0,0,0,64,0,-1--1--1,,1|(1121,679)|
+10,16,Buffer Adjust Time,1051,524,66,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,17,16,13,0,0,0,0,0,64,0,-1--1--1,,1|(1051,563)|
+10,18,Platform Introduced j,1051,771,66,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,19,18,14,0,0,0,0,0,64,0,-1--1--1,,1|(1051,714)|
+1,20,24,14,0,0,0,0,0,64,0,-1--1--1,,1|(930,639)|
+10,21,TIME STEP,1176,459,69,14,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,22,21,16,0,0,0,0,0,64,0,-1--1--1,,1|(1130,481)|
+1,23,3,6,0,0,0,0,0,64,0,-1--1--1,,1|(166,639)|
+10,24,Suggested Buffer i,846,639,55,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,25,Platform Introduced j,846,771,66,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,26,25,24,0,0,0,0,0,64,0,-1--1--1,,1|(846,714)|
+10,27,a i,661,771,25,14,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,28,27,29,0,0,0,0,0,64,0,-1--1--1,,1|(661,714)|
+10,29,New Buffer i,661,639,61,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,30,Distance to Station to Buffer i,486,639,89,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,31,30,29,0,0,0,0,0,64,0,-1--1--1,,1|(579,639)|
+1,32,29,24,0,0,0,0,0,64,0,-1--1--1,,1|(748,639)|
+10,33,Buffer miles per Distance to Stations parameter,486,771,101,35,8,3,0,0,0,0,0,0
+1,34,33,30,0,0,0,0,0,64,0,-1--1--1,,1|(486,708)|
+10,35,Unit conversion for distance to station to buffer,486,524,105,35,8,3,0,0,0,0,0,0
+1,36,35,30,0,0,0,0,0,64,0,-1--1--1,,1|(486,578)|
+10,37,Effective Range if,1451,604,89,14,8,3,0,0,0,0,0,0
+10,38,Platform Range jf,1451,479,44,24,8,3,0,0,0,0,0,0
+1,39,38,37,0,0,0,0,0,64,0,-1--1--1,,1|(1451,538)|
+10,40,"Refuels per Year by Platform-Fuel ir",1901,604,99,24,8,3,0,0,0,0,0,0
+10,41,VMT Public per Year by Platform and by Fuel ir,1901,464,106,35,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,42,Effective Range ir,1661,604,44,24,8,131,0,0,0,0,0,0
+1,43,42,40,0,0,0,0,0,64,0,-1--1--1,,1|(1745,604)|
+10,44,"Range by Platform-Fuel ir",1451,391,84,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,45,44,38,0,0,0,0,0,64,0,-1--1--1,,1|(1451,426)|
+1,46,41,40,0,0,0,0,0,64,0,-1--1--1,,1|(1901,530)|
+1,47,6,30,0,0,0,0,0,64,0,-1--1--1,,1|(378,639)|
+1,48,37,42,0,0,0,0,0,64,0,-1--1--1,,1|(1570,604)|
+1,49,7,37,0,0,0,0,0,64,0,-1--1--1,,1|(1308,604)|
+10,50,Maximum Buffer,661,524,49,24,8,3,0,0,0,0,0,0
+1,51,50,29,0,0,0,0,0,64,0,-1--1--1,,1|(661,578)|
+1,52,29,7,0,0,0,0,0,64,1,-1--1--1,,1|(918,621)|
+1,53,25,7,0,0,0,0,0,64,1,-1--1--1,,1|(1005,695)|
+1,54,29,7,0,0,0,0,0,64,1,-1--1--1,,1|(918,621)|
+10,55,Relative Buffer i,903,898,41,24,8,3,0,0,0,0,0,0
+1,56,27,55,1,0,0,0,0,64,0,-1--1--1,,1|(734,850)|
+1,57,7,55,1,0,0,0,0,64,0,-1--1--1,,1|(1179,749)|
+10,58,Clustering factor,250,745,53,24,8,3,0,0,0,0,0,0
+1,59,58,3,0,0,0,0,0,64,0,-1--1--1,,1|(183,696)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Infrastructure - Fuel Search Cost
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+10,1,PI,1500,626,14,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,2,a i,403,395,14,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,3,Platform Range i,403,296,61,25,8,130,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,4,3,2,0,0,0,0,0,64,0,-1--1--1,,1|(403,343)|
+10,5,Search Cost i,751,656,66,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,6,Service Cost i,1093,855,69,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,7,a i,1208,948,25,14,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,8,Wait Cost i,391,656,54,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,9,OOF Cost i,946,645,54,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,10,Density of Stations f,1405,560,59,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,11,Average Distance Unit Correction,1498,698,94,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,12,Time in other useful activities i,1765,771,94,26,8,131,0,48,-1,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,13,Value of Time,638,560,49,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,14,Average Distance to Station i,805,560,59,35,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,15,14,5,0,0,0,0,0,64,0,-1--1--1,,1|(776,610)|
+1,16,13,5,0,0,0,0,0,64,0,-1--1--1,,1|(693,606)|
+10,17,Average Speed,573,613,49,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,18,17,5,0,0,0,0,0,64,0,-1--1--1,,1|(649,630)|
+10,19,Value of Time,1135,976,49,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,20,Transaction Time,1000,948,66,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,21,Fuel Dispensing Rate i,1311,935,89,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,22,Value of Time,421,560,49,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,23,22,8,0,0,0,0,0,64,0,-1--1--1,,1|(408,604)|
+10,24,Alpha,173,655,41,14,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,25,Target Queue Time i,276,560,74,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,26,Target Utilization i,173,593,61,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,27,Infrastructure Utilization i,163,721,74,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,28,25,8,0,0,0,0,0,64,0,-1--1--1,,1|(331,606)|
+10,29,"Out-of-Fuel Recovery Time",1005,560,81,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,30,Value of Time,1166,560,49,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,31,Value of Time,1755,891,49,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,32,24,8,0,0,0,0,0,64,0,-1--1--1,,1|(266,655)|
+10,33,"Out-of-Fuel Recovery Time",148,328,75,24,8,3,0,48,-1,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,34,Alpha,148,263,30,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,35,Target Queue Time f,148,406,69,24,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,36,Target Queue Time i,565,395,69,24,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,37,Infrastructure Utilization i,920,395,69,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,38,Target Queue Time f,565,295,74,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,39,Target Utilization i,760,395,56,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,40,38,36,0,0,0,0,0,64,0,-1--1--1,,1|(565,336)|
+10,41,FE by Platform by Fuel ir,1398,240,80,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,42,Fuel Dispensing Rate r,1233,295,89,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,43,Fuel Dispensing Rate i,1233,395,84,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,44,FE i,1398,395,21,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,45,42,43,0,0,0,0,0,64,0,-1--1--1,,1|(1233,336)|
+1,46,41,44,0,0,0,0,0,64,0,-1--1--1,,1|(1398,314)|
+10,47,"Range by Platform-Fuel ir",1543,295,84,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,48,Platform Range i,1543,395,44,24,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,49,47,48,0,0,0,0,0,64,0,-1--1--1,,1|(1543,336)|
+10,50,Average Distance to Station f,1721,295,59,35,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,51,Average Distance to Station i,1721,395,89,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,52,50,51,0,0,0,0,0,64,0,-1--1--1,,1|(1721,341)|
+10,53,Target Utilization f,760,295,64,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,54,53,39,0,0,0,0,0,64,0,-1--1--1,,1|(760,336)|
+10,55,Recent Utilization f,915,301,64,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,56,55,37,0,0,0,0,0,64,0,-1--1--1,,1|(916,339)|
+10,57,VMT i,1063,395,29,14,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,58,VMT Public per Year by Platform and by Fuel ir,1063,240,106,35,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,59,58,57,0,0,0,0,0,64,0,-1--1--1,,1|(1063,319)|
+12,60,0,940,466,874,1,3,131,0,48,-1,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,61,Offset of Service Cost by other useful activities i,1531,830,109,35,8,3,0,0,0,0,0,0
+1,62,12,61,0,0,0,0,0,64,0,-1--1--1,,1|(1664,795)|
+1,63,31,61,0,0,0,0,0,64,0,-1--1--1,,1|(1681,871)|
+10,64,New Buffer i,1231,770,74,14,8,2,0,51,0,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,65,Probability OOF i,1188,670,55,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,66,10,65,0,0,0,0,0,64,0,-1--1--1,,1|(1304,610)|
+1,67,1,65,0,0,0,0,0,64,0,-1--1--1,,1|(1373,643)|
+1,68,11,65,0,0,0,0,0,64,0,-1--1--1,,1|(1331,683)|
+1,69,64,65,1,0,0,0,0,64,0,-1--1--1,,1|(1235,725)|
+1,70,30,9,0,0,0,0,0,64,0,-1--1--1,,1|(1058,601)|
+1,71,29,9,0,0,0,0,0,64,0,-1--1--1,,1|(976,600)|
+1,72,65,9,1,0,0,0,0,64,0,-1--1--1,,1|(1066,635)|
+1,73,20,6,0,0,0,0,0,64,0,-1--1--1,,1|(1045,901)|
+1,74,21,6,0,0,0,0,0,64,0,-1--1--1,,1|(1196,893)|
+1,75,19,6,0,0,0,0,0,64,0,-1--1--1,,1|(1114,919)|
+1,76,7,6,0,0,0,0,0,64,0,-1--1--1,,1|(1156,906)|
+1,77,64,6,1,0,0,0,0,64,0,-1--1--1,,1|(1206,808)|
+1,78,61,6,0,0,0,0,0,64,0,-1--1--1,,1|(1300,841)|
+10,79,Full Refueling Cost i,783,800,70,24,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,80,Platform Introduced j,801,910,66,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,81,80,79,0,0,0,0,0,64,0,-1--1--1,,1|(793,863)|
+1,82,27,8,0,0,0,0,0,64,0,-1--1--1,,1|(280,688)|
+1,83,8,79,0,0,0,0,0,64,0,-1--1--1,,1|(564,720)|
+1,84,5,79,1,0,0,0,0,64,0,-1--1--1,,1|(725,725)|
+1,85,9,79,1,0,0,0,0,64,0,-1--1--1,,1|(825,700)|
+1,86,6,79,1,0,0,0,0,64,0,-1--1--1,,1|(931,856)|
+10,87,FE i,1298,870,34,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,88,87,6,0,0,0,0,0,64,0,-1--1--1,,1|(1220,865)|
+10,89,Number of Refuels per Year i,461,806,89,24,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,90,VMT i,273,773,40,14,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,91,a i,238,835,25,14,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,92,Fuel Buffer i,256,895,71,14,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,93,90,89,0,0,0,0,0,64,0,-1--1--1,,1|(334,783)|
+1,94,91,89,0,0,0,0,0,64,0,-1--1--1,,1|(309,825)|
+1,95,92,89,0,0,0,0,0,64,0,-1--1--1,,1|(339,859)|
+1,96,89,79,0,0,0,0,0,64,0,-1--1--1,,1|(623,803)|
+10,97,Refueling possibility i,728,876,64,24,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,98,Refueling possibility i,643,875,59,24,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+10,99,Average Distance to Station i,576,981,59,35,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,100,Platform Range i,435,943,49,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,101,99,98,0,0,0,0,0,64,0,-1--1--1,,1|(608,929)|
+1,102,100,98,0,0,0,0,0,64,0,-1--1--1,,1|(525,913)|
+1,103,98,79,0,0,0,0,0,64,0,-1--1--1,,1|(704,841)|
+10,104,Available Infrastructure f,1646,585,80,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,105,26,8,0,0,0,0,0,64,0,-1--1--1,,1|(280,624)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*OEM - Learning-by-Doing - Body and Engine
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+10,1,Base Vehicle Cost i,728,698,95,14,8,3,0,0,0,0,0,0
+10,2,Effect of Experience on Base Vehicle Cost i,570,523,116,31,8,131,0,0,0,0,0,0
+1,3,2,1,1,0,0,0,0,64,0,-1--1--1,,1|(595,611)|
+10,4,"Cumulative Experience - Base Vehicle i",570,383,91,36,3,131,0,0,0,0,0,0
+12,5,48,570,188,13,10,0,3,0,0,-1,0,0,0
+1,6,8,4,4,0,0,22,0,0,0,-1--1--1,,1|(570,311)|
+1,7,8,5,100,0,0,22,0,0,0,-1--1--1,,1|(570,228)|
+11,8,48,570,268,14,10,33,3,0,0,4,0,0,0
+10,9,"Experience Gain - Base Vehicle i",675,268,90,24,40,3,0,0,-1,0,0,0
+10,10,Initial Base Vehicle Cost i,435,708,79,21,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,11,Initial Experience Base Vehicle i,313,468,94,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,12,11,2,1,0,0,0,0,64,0,-1--1--1,,1|(405,508)|
+1,13,10,1,1,0,0,0,0,64,0,-1--1--1,,1|(560,686)|
+10,14,Initial ELECTRIC Architecture Cost i,1436,83,86,31,8,130,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,15,Initial Experience ELECTRIC Architecture i,1105,68,100,31,8,130,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,16,Initial Experience BATTERY i,440,143,80,35,8,130,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,17,4,2,1,0,0,0,0,64,0,-1--1--1,,1|(560,443)|
+10,18,Effective Base Vehicle Spillover Matrix ij,360,248,85,35,8,3,0,0,0,0,0,0
+10,19,SW Learning,728,793,76,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,20,19,1,1,0,0,0,0,64,0,-1--1--1,,1|(725,753)|
+10,21,Experience Beta,315,598,94,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+1,22,21,2,1,0,0,0,0,64,0,-1--1--1,,1|(415,551)|
+10,23,"Cumulative Experience - IC Engine i",1631,393,91,36,3,131,0,0,0,0,0,0
+12,24,48,1626,198,13,10,0,3,0,0,-1,0,0,0
+1,25,27,23,4,0,0,22,0,0,0,-1--1--1,,1|(1626,321)|
+1,26,27,24,100,0,0,22,0,0,0,-1--1--1,,1|(1626,238)|
+11,27,48,1626,278,14,10,33,3,0,0,4,0,0,0
+10,28,"Experience Gain - IC Engine i",1731,278,90,24,40,3,0,0,-1,0,0,0
+10,29,Effect of Experience on IC Engine Cost i,1631,533,101,24,8,131,0,0,0,0,0,0
+10,30,IC Engine Cost i,1793,713,80,14,8,3,0,0,0,0,0,0
+10,31,Experience Beta,1410,608,94,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,32,SW Learning,1793,803,76,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,33,23,29,1,0,0,0,0,64,0,-1--1--1,,1|(1623,458)|
+1,34,31,29,1,0,0,0,0,64,0,-1--1--1,,1|(1490,570)|
+1,35,29,30,1,0,0,0,0,64,0,-1--1--1,,1|(1683,643)|
+1,36,32,30,0,0,0,0,0,64,0,-1--1--1,,1|(1793,766)|
+10,37,Initial Experience IC Engine i,1411,478,96,35,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,38,Initial IC Engine Cost i,1526,718,75,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,39,37,29,1,0,0,0,0,64,0,-1--1--1,,1|(1483,525)|
+1,40,18,8,0,0,0,0,0,64,0,-1--1--1,,1|(491,259)|
+10,41,Initial Base Vehicle Cost i,685,138,75,24,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,42,38,30,1,0,0,0,0,64,0,-1--1--1,,1|(1641,698)|
+1,43,37,23,0,0,0,0,0,64,1,-1--1--1,,1|(1511,438)|
+10,44,Effective ICE Technology Array ij,1431,258,99,24,8,3,0,0,0,0,0,0
+1,45,44,27,0,0,0,0,0,64,0,-1--1--1,,1|(1563,270)|
+10,46,ICE Technology Matrix ij,1461,143,80,24,8,3,0,0,0,0,0,0
+1,47,46,44,0,0,0,0,0,64,0,-1--1--1,,1|(1448,191)|
+10,48,Order Fulfillment j,565,123,66,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,49,Order Fulfillment j,1616,133,66,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,50,48,9,0,0,0,0,0,64,0,-1--1--1,,1|(614,188)|
+1,51,49,28,0,0,0,0,0,64,0,-1--1--1,,1|(1668,198)|
+1,52,11,4,0,1,0,0,0,64,1,-1--1--1,,1|(423,430)|
+10,53,Learning Share ia,710,63,100,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,54,53,9,0,0,0,0,0,64,0,-1--1--1,,1|(695,151)|
+10,55,Learning Share ia,1711,73,100,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,56,55,28,0,0,0,0,0,64,0,-1--1--1,,1|(1719,161)|
+10,57,Extent of ICE Technology Learning Spillovers,1291,63,109,35,8,3,0,0,0,0,0,0
+1,58,57,44,0,0,0,0,0,64,0,-1--1--1,,1|(1359,158)|
+10,59,Extent of Base Vehicle Technology Learning Spillovers,235,53,114,35,8,3,0,0,0,0,0,0
+1,60,59,18,0,0,0,0,0,64,0,-1--1--1,,1|(291,143)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*OEM - Learning-by-Doing - ELECTRIC Technology
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+10,1,Unit BATTERY Cost i,1799,769,76,24,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12|B|255-128-0
+10,2,Effect of Experience on Unit BATTERY Cost i,1660,594,119,35,8,3,0,0,0,0,0,0
+1,3,2,1,1,0,0,0,0,64,0,-1--1--1,,1|(1690,694)|
+10,4,Learning Rate,1274,598,70,14,8,131,0,0,-1,0,0,0
+10,5,"Cumulative Experience - BATTERY i",1660,455,79,44,3,131,0,0,0,0,0,0
+12,6,48,1660,253,13,10,0,3,0,48,-1,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,7,9,5,4,0,0,22,0,0,0,-1--1--1,,1|(1660,375)|
+1,8,9,6,100,0,0,22,0,0,0,-1--1--1,,1|(1660,291)|
+11,9,48,1660,330,14,10,33,3,0,0,4,0,0,0
+10,10,"Experience Gain - BATTERY i",1775,330,101,24,40,131,0,0,-1,0,0,0
+10,11,Experience Beta,1429,644,59,24,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,12,4,11,1,0,0,0,0,64,0,-1--1--1,,1|(1336,620)|
+1,13,11,2,1,0,0,0,0,64,0,-1--1--1,,1|(1495,604)|
+10,14,Initial BATTERY Cost i,1535,745,89,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,15,Initial Experience BATTERY i,1430,528,106,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+1,16,15,2,1,0,0,0,0,64,0,-1--1--1,,1|(1491,563)|
+1,17,14,1,1,0,0,0,0,64,0,-1--1--1,,1|(1621,780)|
+1,18,5,2,1,0,0,0,0,64,0,-1--1--1,,1|(1649,525)|
+10,19,ELECTRIC Vehicle Technology Matrix ij,1594,90,101,24,8,3,0,0,0,0,0,0
+10,20,Extent of Platform Learning Spillovers,1424,384,104,24,8,130,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+10,21,Effective ELECTRIC Vehicle Spillover Matrix ij,1490,290,100,35,8,131,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,22,19,21,0,0,0,0,0,64,0,-1--1--1,,1|(1549,176)|
+1,23,20,21,0,0,0,0,0,64,0,-1--1--1,,1|(1446,349)|
+10,24,BATTERY i,1654,200,60,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,25,SW Learning,1799,880,51,24,8,130,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,26,25,1,1,0,0,0,0,64,0,-1--1--1,,1|(1816,810)|
+1,27,21,9,0,0,0,0,0,64,0,-1--1--1,,1|(1609,316)|
+10,28,Order Fulfillment j,1710,150,64,24,8,130,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,29,28,10,0,0,0,0,0,64,0,-1--1--1,,1|(1739,231)|
+10,30,SW Learning Spillovers from Leading Platform Only,1289,175,119,35,8,3,0,48,0,0,0,0,0-0-0,0-0-0,Arial|12|B|0-0-0
+1,31,30,21,0,0,0,0,0,64,0,-1--1--1,,1|(1381,228)|
+10,32,Leading Platform Spillover Matrix ij,1384,95,91,24,8,130,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,33,32,21,0,0,0,0,0,64,0,-1--1--1,,1|(1429,179)|
+10,34,Learning Share ia,1816,118,51,24,8,2,0,51,-1,0,0,0,128-128-128,0-0-0,Arial|12|B|128-128-128
+1,35,34,10,0,0,0,0,0,64,0,-1--1--1,,1|(1796,215)|
+1,36,15,5,0,0,0,0,0,64,1,-1--1--1,,1|(1534,494)|
+10,37,ELECTRIC Architecture Cost i,710,765,94,24,8,3,0,0,0,0,0,0
+10,38,Effect of Experience on ELECTRIC Architecture Cost i,551,590,119,35,8,3,0,0,0,0,0,0
+1,39,38,37,1,0,0,0,0,64,0,-1--1--1,,1|(576,685)|
+10,40,SW Learning,710,878,65,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,41,40,37,1,0,0,0,0,64,0,-1--1--1,,1|(666,803)|
+10,42,"Cumulative Experience - ELECTRIC Architecture i",551,453,79,44,3,131,0,0,0,0,0,0
+12,43,48,551,249,13,10,0,3,0,0,-1,0,0,0
+1,44,46,42,4,0,0,22,0,0,0,-1--1--1,,1|(551,373)|
+1,45,46,43,100,0,0,22,0,0,0,-1--1--1,,1|(551,288)|
+11,46,48,551,328,14,10,33,3,0,0,4,0,0,0
+10,47,"Experience Gain - ELECTRIC Architecture i",655,328,89,35,40,3,0,0,-1,0,0,0
+10,48,Initial ELECTRIC Architecture Cost i,395,743,99,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,49,Initial Experience ELECTRIC Architecture i,299,524,91,35,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+1,50,49,38,1,0,0,0,0,64,0,-1--1--1,,1|(390,568)|
+1,51,48,37,1,0,0,0,0,64,0,-1--1--1,,1|(525,778)|
+1,52,42,38,1,0,0,0,0,64,0,-1--1--1,,1|(535,520)|
+10,53,Experience Beta,299,640,94,15,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,54,53,38,1,0,0,0,0,64,0,-1--1--1,,1|(385,604)|
+10,55,Order Fulfillment j,516,188,106,11,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,56,55,47,0,0,0,0,0,64,0,-1--1--1,,1|(566,239)|
+1,57,49,42,0,0,0,0,0,64,1,-1--1--1,,1|(423,489)|
+10,58,Effective ELECTRIC Vehicle Spillover Matrix ij,360,260,105,35,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,59,58,46,1,0,0,0,0,64,0,-1--1--1,,1|(466,323)|
+10,60,Learning Share ia,600,125,100,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,61,60,47,0,0,0,0,0,64,0,-1--1--1,,1|(621,206)|
+10,62,Order Fulfillment j,1015,1099,66,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,63,MAX Sales,1401,1099,55,14,8,3,0,0,0,0,0,0
+10,64,MAX Platform Flag j,1214,1014,99,14,8,3,0,0,0,0,0,0
+1,65,63,64,0,0,0,0,0,64,0,-1--1--1,,1|(1315,1059)|
+10,66,Leading Platform Spillover Matrix ij,1214,925,89,24,8,3,0,0,0,0,0,0
+1,67,64,66,0,0,0,0,0,64,0,-1--1--1,,1|(1214,983)|
+10,68,Order Fulfillment No GAS j,1214,1099,86,24,8,3,0,0,0,0,0,0
+1,69,62,68,0,0,0,0,0,64,0,-1--1--1,,1|(1095,1099)|
+1,70,68,63,0,0,0,0,0,64,0,-1--1--1,,1|(1314,1099)|
+1,71,68,64,0,0,0,0,0,64,0,-1--1--1,,1|(1214,1060)|
+1,72,24,10,0,0,0,0,0,64,0,-1--1--1,,1|(1708,258)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*OEM - Production and R&D
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,5,0
+10,1,Learning Share ia,1091,41,45,24,8,3,0,0,0,0,0,0
+10,2,Initial Learning Share ia,879,44,75,24,8,3,0,2,0,0,0,0,-1--1--1,0-0-0,|12||255-0-0
+1,3,2,1,0,0,0,0,0,64,0,-1--1--1,,1|(991,43)|
+10,4,OEM Revenue i,249,243,89,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||255-128-0
+10,5,"Cumulative R&D for Fuel Efficiency",670,416,105,34,3,131,0,0,0,0,0,0
+12,6,48,285,416,13,10,0,3,0,0,-1,0,0,0
+1,7,9,5,4,0,0,22,0,0,0,-1--1--1,,1|(503,416)|
+1,8,9,6,100,0,0,22,0,0,0,-1--1--1,,1|(359,416)|
+11,9,48,430,416,10,14,34,3,0,0,1,0,0,0
+10,10,"R&D for Fuel Efficiency",430,454,65,24,40,3,0,0,-1,0,0,0
+10,11,Fraction of Industry Revenue for Fuel Efficiency RandD,565,253,100,35,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12|B|255-128-0
+10,12,"Initial R&D for Fuel Efficiency",786,276,75,24,8,3,0,0,0,0,0,0
+10,13,Effect of Learning on Fuel Efficiency,971,423,91,24,8,3,0,0,0,0,0,0
+1,14,5,13,1,0,0,0,0,64,0,-1--1--1,,1|(854,441)|
+1,15,12,13,1,0,0,0,0,64,0,-1--1--1,,1|(891,316)|
+10,16,Fuel Efficiency Beta,1009,308,54,34,8,131,0,0,0,0,0,0
+1,17,16,13,1,0,0,0,0,64,0,-1--1--1,,1|(994,359)|
+10,18,Fuel Efficiency Learning Rate,954,209,89,24,8,131,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-128-0
+10,19,"R&D For Fuel Efficiency i",386,323,69,24,8,3,0,0,0,0,0,0
+1,20,4,19,0,0,0,0,0,64,0,-1--1--1,,1|(300,273)|
+1,21,11,19,0,0,0,0,0,64,0,-1--1--1,,1|(469,290)|
+1,22,19,9,1,0,0,0,0,64,0,-1--1--1,,1|(414,354)|
+10,23,Cumulative FE of Vehicle by Platform i,1450,559,104,40,3,131,0,0,0,0,0,0
+12,24,48,1125,559,13,10,0,3,0,0,-1,0,0,0
+1,25,27,23,4,0,0,22,0,0,0,-1--1--1,,1|(1296,559)|
+1,26,27,24,100,0,0,22,0,0,0,-1--1--1,,1|(1184,559)|
+11,27,48,1239,559,9,10,34,3,0,0,1,0,0,0
+10,28,Increase in FE i,1239,583,76,14,40,3,0,0,-1,0,0,0
+12,29,48,1750,559,13,10,0,3,0,0,-1,0,0,0
+1,30,32,29,4,0,0,22,0,0,0,-1--1--1,,1|(1695,559)|
+1,31,32,23,100,0,0,22,0,0,0,-1--1--1,,1|(1594,559)|
+11,32,48,1644,559,9,10,34,3,0,0,1,0,0,0
+10,33,Decrease in FE i,1644,583,81,14,40,3,0,0,-1,0,0,0
+10,34,Average FE by Platform i,1549,444,70,24,8,3,0,32,0,0,0,0,0-0-0,0-0-0,Arial|12||0-0-0
+1,35,23,34,1,0,0,0,0,64,0,-1--1--1,,1|(1474,499)|
+10,36,Installed Base i,1573,288,59,35,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,37,36,34,1,0,0,0,0,64,0,-1--1--1,,1|(1529,351)|
+10,38,Vehicle Discards i,1739,388,120,35,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+1,39,36,23,0,0,0,0,0,64,1,-1--1--1,,1|(1515,413)|
+1,40,34,32,1,0,0,0,0,64,0,-1--1--1,,1|(1624,519)|
+1,41,38,32,1,0,0,0,0,64,0,-1--1--1,,1|(1644,494)|
+10,42,FE of New Vehicles by Platform j,1264,376,59,35,8,3,0,0,0,0,0,0
+10,43,Order Fulfillment j,1319,461,66,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,44,42,27,1,0,0,0,0,64,0,-1--1--1,,1|(1209,456)|
+1,45,43,27,1,0,0,0,0,64,0,-1--1--1,,1|(1294,506)|
+1,46,42,34,1,0,0,0,0,64,0,-1--1--1,,1|(1405,374)|
+10,47,Initial Fleet Fuel Economy GGE i,1450,623,101,24,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,48,47,23,0,1,0,0,0,64,1,-1--1--1,,1|(1450,599)|
+10,49,Fuel Efficiency Spillover Strength i,1290,99,96,24,8,3,0,0,0,0,0,0
+10,50,Relative Efficiency i,1204,186,99,14,8,3,0,0,0,0,0,0
+1,51,49,50,1,0,0,0,0,64,0,-1--1--1,,1|(1246,136)|
+10,52,Reference Platform Fuel Efficiency i,1464,201,96,24,8,3,0,0,0,0,0,0
+10,53,Fuel Efficiency i,1325,283,80,14,8,3,0,0,0,0,0,0
+1,54,50,53,1,0,0,0,0,64,0,-1--1--1,,1|(1314,254)|
+10,55,Initial Fleet Fuel Economy GGE i,1630,133,101,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+1,56,53,42,0,0,0,0,0,64,0,-1--1--1,,1|(1305,311)|
+1,57,52,53,0,0,0,0,0,64,0,-1--1--1,,1|(1393,243)|
+1,58,55,52,0,0,0,0,0,64,0,-1--1--1,,1|(1555,163)|
+1,59,13,50,1,0,0,0,0,64,0,-1--1--1,,1|(1099,359)|
+1,60,18,16,0,0,0,0,0,64,0,-1--1--1,,1|(973,245)|
+10,61,Platform Introduced j,394,566,74,34,3,131,0,0,0,0,0,0
+12,62,48,136,566,13,10,0,3,0,0,-1,0,0,0
+1,63,65,61,4,0,0,22,0,0,0,-1--1--1,,1|(281,566)|
+1,64,65,62,100,0,0,22,0,0,0,-1--1--1,,1|(186,566)|
+11,65,48,234,566,9,10,34,3,0,0,1,0,0,0
+10,66,Introduction Trigger j,234,601,61,24,40,131,0,0,-1,0,0,0
+10,67,Platform Introduction Date j,295,731,89,35,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||160-160-160
+1,68,67,66,1,0,0,0,0,64,0,-1--1--1,,1|(284,656)|
+10,69,Time,56,646,39,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||160-160-160
+1,70,69,66,1,0,0,0,0,64,0,-1--1--1,,1|(106,606)|
+10,71,TIME STEP,134,693,69,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||160-160-160
+1,72,71,66,0,0,0,0,0,64,0,-1--1--1,,1|(171,658)|
+1,73,61,65,1,0,45,0,2,64,0,-1--1--1,|12||0-0-0,1|(269,511)|
+1,74,67,61,0,1,0,0,0,64,1,-1--1--1,,1|(339,655)|
+1,75,69,61,0,1,0,0,0,64,1,-1--1--1,,1|(199,611)|
+11,76,92,674,620,10,14,34,3,0,0,1,0,0,0
+10,77,Order Fulfillment j,674,655,66,21,40,131,0,0,-1,0,0,0
+10,78,Platform Demand j,751,543,55,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,79,78,76,1,0,0,0,0,64,0,-1--1--1,,1|(705,580)|
+10,80,Cumulative Order Fulfillment j,895,625,66,34,3,3,0,0,0,0,0,0
+1,81,76,80,4,0,0,22,0,0,0,-1--1--1,,1|(756,620)|
+12,82,48,535,625,13,10,0,3,0,0,-1,0,0,0
+1,83,76,82,100,0,0,22,0,0,0,-1--1--1,,1|(605,620)|
+1,84,12,5,0,0,0,0,0,64,1,-1--1--1,,1|(738,334)|
+10,85,SW Improving FE,1450,338,69,24,8,3,0,2,0,0,0,0,0-0-0,0-0-0,|12||255-0-255
+1,86,85,53,0,0,0,0,0,64,0,-1--1--1,,1|(1384,308)|
+10,87,Average Fleet FE,1734,308,69,24,8,3,0,0,0,0,0,0
+1,88,34,87,0,0,0,0,0,64,0,-1--1--1,,1|(1633,380)|
+10,89,Average FE of New Vehicles,1114,474,71,24,8,3,0,0,0,0,0,0
+1,90,42,89,0,0,0,0,0,64,0,-1--1--1,,1|(1186,425)|
+10,91,Installed Base Share i,1760,201,76,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,92,91,87,0,0,0,0,0,64,0,-1--1--1,,1|(1749,245)|
+10,93,Vehicle Sales Share i,1019,563,74,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,94,93,89,0,0,0,0,0,64,0,-1--1--1,,1|(1059,524)|
+10,95,Installed Base Share i,1114,521,76,24,8,2,1,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,96,95,89,0,1,0,0,0,64,0,-1--1--1,,1|(1114,498)|
+\\\---/// Sketch information - do not modify anything except names
+V300  Do not put anything below this section - it will be ignored
+*Subscripted Platform Attributes
+$192-192-192,0,Arial|12|B|0-0-0|0-0-0|0-0-255|-1--1--1|-1--1--1|120,120,80,0
+10,1,Acceleration by Platform j,629,348,79,24,8,3,0,0,0,0,0,0
+10,2,GAS Acceleration,378,224,79,26,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,3,HYBRID Acceleration,635,223,85,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,4,ELECTRIC Acceleration,899,218,81,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+1,5,4,1,0,0,0,0,0,64,0,-1--1--1,,1|(771,278)|
+1,6,3,1,0,0,0,0,0,64,0,-1--1--1,,1|(633,276)|
+1,7,2,1,0,0,0,0,0,64,0,-1--1--1,,1|(496,283)|
+10,8,Tank GGE j,1143,775,56,14,8,3,0,0,0,0,0,0
+10,9,GAS Tank,944,770,61,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,10,HYBRID Tank,944,849,49,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+1,11,9,8,0,0,0,0,0,64,0,-1--1--1,,1|(1036,771)|
+1,12,10,8,0,0,0,0,0,64,0,-1--1--1,,1|(1040,813)|
+10,13,BATTERY i,1729,515,59,30,8,131,0,0,0,0,0,0
+10,14,HYBRID Storage,1604,434,49,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+1,15,14,13,0,0,0,0,0,64,0,-1--1--1,,1|(1654,466)|
+10,16,Top Speed by Platform j,608,644,70,24,8,3,0,0,0,0,0,0
+10,17,GAS Top Speed,353,505,51,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,18,HYBRID Top Speed,615,498,70,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,19,ELECTRIC Top Speed,885,499,81,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+1,20,17,16,0,0,0,0,0,64,0,-1--1--1,,1|(471,570)|
+1,21,18,16,0,0,0,0,0,64,0,-1--1--1,,1|(611,561)|
+1,22,19,16,0,0,0,0,0,64,0,-1--1--1,,1|(754,566)|
+10,23,"Vehicle Fuel Capacity by Platform-Fuel ir",1439,775,91,36,8,131,0,0,0,0,0,0
+10,24,FE by Platform by Fuel ir,1875,779,80,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,25,"Range by Platform-Fuel ir",1700,844,86,25,8,131,0,0,0,0,0,0
+1,26,23,25,0,0,0,0,0,64,0,-1--1--1,,1|(1563,806)|
+1,27,24,25,0,0,0,0,0,64,0,-1--1--1,,1|(1796,808)|
+10,28,Native units to GGE ELECTRICITY,1663,664,94,34,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,29,28,23,1,0,0,0,0,64,0,-1--1--1,,1|(1544,694)|
+10,30,Initial GAS FE,490,1218,59,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,31,Initial ELECTRIC FE,1478,1218,99,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,32,Initial HYBRID FE,920,1218,64,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,33,Initial Fleet Fuel Economy GGE i,1029,1430,95,24,8,3,0,0,0,0,0,0
+10,34,Native units to GGE Gasoline,673,1218,79,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,35,Initial GAS FE GGE,600,1323,60,25,8,131,0,0,0,0,0,0
+1,36,30,35,0,0,0,0,0,64,0,-1--1--1,,1|(536,1263)|
+1,37,34,35,0,0,0,0,0,64,0,-1--1--1,,1|(641,1261)|
+1,38,35,33,0,0,0,0,0,64,0,-1--1--1,,1|(788,1369)|
+10,39,Initial HYBRID FE GGE,1034,1320,75,21,8,131,0,0,0,0,0,0
+10,40,Native units to GGE Gasoline,1123,1218,80,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,41,32,39,0,0,0,0,0,64,0,-1--1--1,,1|(971,1264)|
+1,42,40,39,0,0,0,0,0,64,0,-1--1--1,,1|(1083,1263)|
+1,43,39,33,0,0,0,0,0,64,0,-1--1--1,,1|(1031,1365)|
+10,44,Initial ELECTRIC FE GGE,1378,1323,104,24,8,131,0,0,0,0,0,0
+1,45,44,33,0,0,0,0,0,64,0,-1--1--1,,1|(1211,1373)|
+1,46,31,44,0,0,0,0,0,64,0,-1--1--1,,1|(1433,1263)|
+10,47,Native units to GGE Gasoline,944,694,80,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,48,47,8,0,0,0,0,0,64,0,-1--1--1,,1|(1046,735)|
+10,49,BATTERY Capacity,1889,444,75,24,8,3,0,0,0,0,0,0
+10,50,ELECTRIC Energy Efficiency,2109,510,94,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+10,51,ELECTRIC Range,2108,430,81,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,52,49,13,0,0,0,0,0,64,0,-1--1--1,,1|(1819,474)|
+10,53,BATTERY i,1394,634,61,24,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,54,53,23,0,0,0,0,0,64,0,-1--1--1,,1|(1410,689)|
+10,55,Tank GGE j,1219,659,69,14,8,2,0,3,-1,0,0,0,128-128-128,0-0-0,|12||128-128-128
+1,56,55,23,0,0,0,0,0,64,0,-1--1--1,,1|(1299,701)|
+10,57,Platform Introduction Date j,2150,1159,94,24,8,131,0,0,0,0,0,0
+10,58,GAS Introduction Date,1929,1124,94,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,59,HYBRID Introduction Date,2020,1020,94,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|128-128-128
+10,60,ELECTRIC Introduction Date,2000,1255,94,24,8,130,0,3,-1,0,0,0,128-128-128,0-0-0,|12|B|255-128-0
+1,61,58,57,0,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(2030,1139)|
+1,62,59,57,0,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(2078,1083)|
+1,63,60,57,0,0,43,0,2,64,0,-1--1--1,|12||0-0-0,1|(2066,1211)|
+1,64,51,49,0,0,0,0,0,64,0,-1--1--1,,1|(2003,436)|
+1,65,50,49,0,0,0,0,0,64,0,-1--1--1,,1|(2005,479)|
+///---\\\
+:GRAPH Buffer
+:TITLE Relative Buffer
+:NO-LEGEND 4
+:SCALE
+:VAR Relative Buffer i[CONVENTIONAL]
+:VAR Relative Buffer i[HYBRID]
+:VAR Relative Buffer i[ELECTRIC]
+
+:GRAPH Fleet_Installed_Base
+:TITLE Fleet Installed Base
+:NO-LEGEND 4
+:SCALE
+:VAR Installed Base Percent i[CONVENTIONAL]
+:UNITS %
+:VAR Installed Base Percent i[HYBRID]
+:VAR Installed Base Percent i[ELECTRIC]
+
+:GRAPH Fleet_Sales
+:TITLE Fleet Sales
+:NO-LEGEND 4
+:SCALE
+:VAR Vehicle Sales Percent i[CONVENTIONAL]
+:UNITS %
+:VAR Vehicle Sales Percent i[HYBRID]
+:VAR Vehicle Sales Percent i[ELECTRIC]
+
+:GRAPH Pump_Utilization
+:TITLE Perceived Utilization
+:NO-LEGEND 4
+:SCALE
+:VAR Recent Utilization f[GASPUMP]
+:Y-MIN 0
+:Y-MAX 1
+:VAR Recent Utilization f[PLUG]
+
+:GRAPH Refueling_Stations
+:TITLE Refueling Stations
+:NO-LEGEND 4
+:SCALE
+:VAR Available Infrastructure f[GASPUMP]
+:VAR Available Infrastructure f[PLUG]
+
+:GRAPH Station_Profitability
+:TITLE Station Profitability
+:SCALE
+:VAR Recent Station Profit Margin f[GASPUMP]
+:Y-MIN 0
+:VAR Recent Station Profit Margin f[PLUG]
+
+:GRAPH Consideration
+:TITLE Consideration
+:NO-LEGEND 4
+:SCALE
+:VAR Average Familiarity i[CONVENTIONAL]
+:VAR Average Familiarity i[HYBRID]
+:VAR Average Familiarity i[ELECTRIC]
+:L<%^E!@
+1:scenario.vdf
+9:scenario
+22:$,Dollar,Dollars,$s
+22:Day,Days
+22:Dmnl,Dimensionless,1
+22:Hour,Hours
+22:Month,Months
+22:Person,People,Persons
+22:Unit,Units
+22:vehicle,vehicles
+22:Week,Weeks
+22:Year,Years
+12:Platform Competition Model v4.vpd
+18:Gas Price and Battery Cost Sensitivity.vsc
+20:Platform Competition Model v12.lst
+15:0,0,0,0,0,0
+19:50,0
+27:2,
+34:0,
+4:Time
+5:stations incentives[Infrastructure]
+35:Date
+36:YYYY-MM-DD
+37:1
+38:1
+39:1
+40:2
+41:0
+42:0
+24:0
+25:30
+26:30
+6:BASEVEH
+6:BATTERY
+6:CONVENTIONAL
+6:ELECARCH
+6:ELECTRIC
+6:ELECTRICITY
+6:ENGINE
+6:GASOLINEFUEL
+6:GASPUMP
+6:HYBRID
+6:PLUG
