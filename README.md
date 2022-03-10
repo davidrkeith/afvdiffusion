@@ -1,2 +1,8 @@
-# afvdiffusion
-The Diffusion of Alternative Fuel Vehicles: A Generalized Model and Future Research Agenda
+# The Diffusion of Alternative Fuel Vehicles: A Generalized Model and Future Research Agenda
+## Authors: David Keith, Jeroen J.R. Struben, and Sergey Naumov
+## Year: 2019
+## Journal: Journal of Simulation
+## DOI: https://doi.org/10.1080/17477778.2019.1708219
+## Abstract:
+The rapid decarbonization of transportation is critical if global efforts to mitigate the worst possible impacts of anthropogenic climate change are to be successful. Transportation is a leading sectoral contributor of greenhouse gas emissions, and demand for transportation continues to grow globally. Alternative fuel vehicles (AFVs) powered by fuels such as electricity, hydrogen, and biofuels promise to mitigate the environmental impacts of automotive transportation, including urban air pollution and greenhouse gas emissions. However, multiple barriers to AFV diffusion exist, including low consumer acceptance, high vehicle costs, and a lack of refueling infrastructure, meaning that sophisticated policies and strategies will be needed to achieve an AFV market transition that is both ecologically and economically sustainable. While more EVs were sold in 2018 than ever before, these sales were the result of aggressive policy support in places such as China and Norway, and it is not clear that EV sales would persist at this level if these policies were removed. In this paper, we present and make freely available a generalized model of AFV diffusion that is flexible for the exploration of these critical policy questions, building on recent AFV diffusion literature from system dynamics and related fields. We demonstrate using illustrative scenarios the fragility of AFV diffusion, with a range of behavior modes possible depending on the structure of the market and the actions of stakeholders. Finally, we identify a number of contemporary research topics of interest to automotive manufacturers and policymakers that can be addressed using the model.
+
